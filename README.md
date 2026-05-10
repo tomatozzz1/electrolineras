@@ -1,4 +1,4 @@
-# ⚡ Electrolineras — ERP para Centros de Carga de Vehículos Eléctricos
+# Electrolineras — ERP para Centros de Carga de Vehículos Eléctricos
 
 Sistema web completo para la gestión y operación de estaciones de carga de vehículos eléctricos. Incluye backend REST API, base de datos PostgreSQL y frontend interactivo para usuarios finales.
 
