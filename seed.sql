@@ -1,7 +1,3 @@
--- Electrolineras - Seed de datos
--- Ejecutar DESPUES de 1_schema.sql
--- Contrasena de todos los usuarios: 12345678
-
 INSERT INTO tipos_usuario (nombre_tipo, descripcion) VALUES
 ('administrador', 'Acceso total al sistema'),
 ('cliente',       'Usuario que contrata servicios'),

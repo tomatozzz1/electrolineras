@@ -1,17 +1,15 @@
-/* ════════════════════════════════════════════════════════════
-   Electrolineras — Frontend conectado a la API
+/* 
    URL del backend: http://localhost:3000
-   ════════════════════════════════════════════════════════════ */
+    */
 
 'use strict';
 
 const API = 'http://localhost:3000/api';
 
-/* ─── ESTADO GLOBAL ─── */
 const State = {
-    usuario:        null,    // objeto usuario del backend
-    vehiculo:       null,    // vehículo principal
-    sesionActiva:   null,    // { id_sesion, id_puerto, ... }
+    usuario:        null,    
+    vehiculo:       null,    
+    sesionActiva:   null,    
     chargeInterval: null,
     chargeStart:    null,
     chargeKwh:      0,
@@ -19,9 +17,9 @@ const State = {
     estacionFilter: '',
 };
 
-/* ════════════════════════════════════════════════════════════
+/* 
    UTILIDADES
-   ════════════════════════════════════════════════════════════ */
+    */
 function showToast(msg, dur = 3000) {
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -52,9 +50,9 @@ function emptyState(icon, msg, sub = '') {
     </div>`;
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    LLAMADAS A LA API
-   ════════════════════════════════════════════════════════════ */
+    */
 async function apiFetch(path, options = {}) {
     try {
         const res = await fetch(API + path, {
@@ -72,9 +70,9 @@ async function apiFetch(path, options = {}) {
     }
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    LOGIN / REGISTRO
-   ════════════════════════════════════════════════════════════ */
+    */
 function togglePass(btn) {
     const input = btn.closest('.input-wrap').querySelector('input');
     input.type = input.type === 'password' ? 'text' : 'password';
@@ -190,9 +188,9 @@ function doLogout() {
     location.reload();
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    NAVEGACIÓN
-   ════════════════════════════════════════════════════════════ */
+    */
 function goTab(name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     const el = document.getElementById(`tab-${name}`);
@@ -219,9 +217,9 @@ function toggleAcc(id) {
     if (icon) icon.style.transform = open ? 'rotate(90deg)' : '';
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    INICIALIZACIÓN DE LA APP
-   ════════════════════════════════════════════════════════════ */
+    */
 async function initApp() {
     const u = State.usuario;
 
@@ -252,9 +250,9 @@ async function initApp() {
     goTab('inicio');
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    INICIO — saludo y vehículo
-   ════════════════════════════════════════════════════════════ */
+    */
 async function renderGreeting() {
     const u  = State.usuario;
     const hi = document.querySelector('.gr-hi');
@@ -297,9 +295,9 @@ async function renderVehiculoCard() {
     }
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    HOME STRIP — estaciones disponibles
-   ════════════════════════════════════════════════════════════ */
+    */
 async function renderHomeStrip() {
     const strip = document.getElementById('home-strip');
     if (!strip) return;
@@ -356,9 +354,9 @@ async function renderUltimaCarga() {
     } catch(_) {}
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    ESTACIONES
-   ════════════════════════════════════════════════════════════ */
+    */
 let chipFilter = '';
 
 function setChip(btn, filter) {
@@ -437,9 +435,9 @@ function stationCard(e) {
     </div>`;
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    INICIAR CARGA — selección de estación y puerto
-   ════════════════════════════════════════════════════════════ */
+    */
 async function iniciarCarga() {
     if (!State.usuario) { showToast('Inicia sesión primero'); return; }
     if (State.sesionActiva) { goTab('cargando'); return; }
@@ -538,9 +536,9 @@ async function confirmarCarga(idEst, idPuerto) {
     }
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    SESIÓN ACTIVA — animación y contador
-   ════════════════════════════════════════════════════════════ */
+    */
 async function iniciarCounterCarga(sesion, idEst) {
     State.chargeStart = Date.now();
     State.chargeKwh   = 0;
@@ -647,9 +645,9 @@ async function finalizarSesion() {
     goTab('historial');
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    HISTORIAL
-   ════════════════════════════════════════════════════════════ */
+    */
 async function renderHistorial() {
     const list = document.getElementById('history-list');
     if (!list || !State.usuario) return;
@@ -714,9 +712,9 @@ async function renderHistorial() {
     }
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    PERFIL / CUENTA
-   ════════════════════════════════════════════════════════════ */
+    */
 async function renderPerfil() {
     if (!State.usuario) return;
 
@@ -907,9 +905,9 @@ async function guardarVehiculo() {
     }
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    PLANES
-   ════════════════════════════════════════════════════════════ */
+    */
 async function mostrarPlanes() {
     try {
         const planes = await apiFetch('/planes');
@@ -917,9 +915,9 @@ async function mostrarPlanes() {
     } catch(err) { showToast(err.message); }
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    SIDEBAR — Carga dinámica de acordeones
-   ════════════════════════════════════════════════════════════ */
+    */
 
 // Carga vehículos reales del usuario en el sidebar
 async function cargarVehiculosSidebar() {
@@ -994,9 +992,9 @@ function resetSidebarCache() {
     });
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    MODAL: AGREGAR VEHÍCULO (desde sidebar)
-   ════════════════════════════════════════════════════════════ */
+    */
 
 let _marcasCache = [];
 let _modelosCache = [];
@@ -1083,9 +1081,9 @@ async function guardarVehiculoModal() {
     }
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    MODAL: CAMBIAR PLAN
-   ════════════════════════════════════════════════════════════ */
+    */
 
 async function abrirModalPlanes() {
     openModal('modal-planes');
@@ -1144,9 +1142,9 @@ async function contratarPlan(idPlan, nombrePlan) {
     }
 }
 
-/* ════════════════════════════════════════════════════════════
+/* 
    ARRANQUE
-   ════════════════════════════════════════════════════════════ */
+    */
 document.addEventListener('DOMContentLoaded', () => {
     // Enter en login
     document.addEventListener('keydown', e => {

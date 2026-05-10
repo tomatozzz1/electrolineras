@@ -1,8 +1,6 @@
-/* ════════════════════════════════════════════════════════════
-   Electrolineras — Servidor API REST
-   Stack: Node.js + Express + PostgreSQL (pg)
+/* 
    Puerto: 3000 (configurable en .env)
-   ════════════════════════════════════════════════════════════ */
+    */
 
 require('dotenv').config();
 const express = require('express');
@@ -38,9 +36,9 @@ app.use(express.static('public')); // sirve el frontend desde /public
 /* Helper para queries */
 const query = (text, params) => pool.query(text, params);
 
-/* ════════════════════════════════════════════════════════════
+/* 
    AUTENTICACIÓN
-   ════════════════════════════════════════════════════════════ */
+    */
 
 // POST /api/auth/registro
 app.post('/api/auth/registro', async (req, res) => {
@@ -133,9 +131,9 @@ app.post('/api/auth/login', async (req, res) => {
     }
 });
 
-/* ════════════════════════════════════════════════════════════
+/* 
    USUARIOS
-   ════════════════════════════════════════════════════════════ */
+    */
 
 // GET /api/usuarios/:id/perfil
 app.get('/api/usuarios/:id/perfil', async (req, res) => {
@@ -171,9 +169,9 @@ app.put('/api/usuarios/:id', async (req, res) => {
     }
 });
 
-/* ════════════════════════════════════════════════════════════
+/* 
    VEHÍCULOS
-   ════════════════════════════════════════════════════════════ */
+    */
 
 // GET /api/usuarios/:id/vehiculos
 app.get('/api/usuarios/:id/vehiculos', async (req, res) => {
@@ -238,9 +236,9 @@ app.get('/api/modelos', async (req, res) => {
     res.json(r.rows);
 });
 
-/* ════════════════════════════════════════════════════════════
+/* 
    ESTACIONES
-   ════════════════════════════════════════════════════════════ */
+    */
 
 // GET /api/estaciones
 app.get('/api/estaciones', async (req, res) => {
@@ -314,9 +312,9 @@ app.get('/api/estaciones/:id', async (req, res) => {
     }
 });
 
-/* ════════════════════════════════════════════════════════════
+/* 
    SESIONES DE CARGA
-   ════════════════════════════════════════════════════════════ */
+    */
 
 // POST /api/sesiones  — iniciar carga
 app.post('/api/sesiones', async (req, res) => {
@@ -468,9 +466,9 @@ app.get('/api/sesiones/:id', async (req, res) => {
     }
 });
 
-/* ════════════════════════════════════════════════════════════
+/* 
    SUSCRIPCIONES
-   ════════════════════════════════════════════════════════════ */
+    */
 
 // GET /api/planes
 app.get('/api/planes', async (_req, res) => {
@@ -521,9 +519,9 @@ app.post('/api/suscripciones', async (req, res) => {
     }
 });
 
-/* ════════════════════════════════════════════════════════════
+/* 
    CATÁLOGOS (solo lectura)
-   ════════════════════════════════════════════════════════════ */
+    */
 
 // GET /api/metodos-pago
 app.get('/api/metodos-pago', async (_req, res) => {
@@ -563,9 +561,9 @@ app.get('/api/tarifas/vigente', async (_req, res) => {
     res.json(r.rows[0] || { precio_kwh: 6.0 });
 });
 
-/* ════════════════════════════════════════════════════════════
+/* 
    PUERTOS  — para seleccionar en la app
-   ════════════════════════════════════════════════════════════ */
+    */
 
 // GET /api/estaciones/:id/puertos-libres
 app.get('/api/estaciones/:id/puertos-libres', async (req, res) => {
