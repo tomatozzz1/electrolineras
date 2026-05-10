@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Electrolineras — Tu red de carga</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Figtree:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════
+     PANTALLA: LOGIN
+═══════════════════════════════════ -->
+<div class="screen active" id="screen-login">
+    <div class="login-layout">
+
+        <div class="login-hero">
+            <div class="login-hero-inner">
+                <div class="brand-mark">
+                    <div class="brand-icon">⚡</div>
+                    <span class="brand-name">Electrolineras</span>
+                </div>
+                <h1 class="hero-headline">Carga tu auto<br><em>cuando quieras</em></h1>
+                <p class="hero-sub">Red de electrolineras inteligentes en todo México. Rápido, seguro y sustentable.</p>
+                <div class="hero-stats">
+                    <div class="h-stat"><span class="h-n">8</span><span class="h-l">Estaciones</span></div>
+                    <div class="h-div"></div>
+                    <div class="h-stat"><span class="h-n">19</span><span class="h-l">Cargadores</span></div>
+                    <div class="h-div"></div>
+                    <div class="h-stat"><span class="h-n">24/7</span><span class="h-l">Disponible</span></div>
+                </div>
+            </div>
+            <div class="hero-circle c1"></div>
+            <div class="hero-circle c2"></div>
+            <div class="hero-circle c3"></div>
+        </div>
+
+        <div class="login-form-panel">
+            <div class="login-form-wrap">
+                <div class="mobile-brand">
+                    <span>⚡</span> Electrolineras
+                </div>
+                <h2 class="form-title">Bienvenido de vuelta</h2>
+                <p class="form-sub">Ingresa a tu cuenta para continuar</p>
+
+                <div class="form-group">
+                    <label class="form-label">Correo electrónico</label>
+                    <div class="input-wrap">
+                        <span class="input-icon" style="display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+                        <input type="email" id="login-email" class="form-input"
+                               placeholder="tucorreo@ejemplo.com" value="sramirez@gmail.com">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <div class="input-wrap">
+                        <span class="input-icon" style="display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                        <input type="password" id="login-pass" class="form-input"
+                               placeholder="••••••••" value="12345">
+                        <button type="button" class="pass-toggle" tabindex="-1" title="Mostrar/ocultar contraseña" onclick="togglePass(this)">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="check-label">
+                        <input type="checkbox" checked> Recordarme
+                    </label>
+                    <a href="#" class="link-g">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button class="btn-primary w-full" id="login-btn" onclick="doLogin()">
+                    Iniciar sesión <span class="btn-arr">→</span>
+                </button>
+
+                <div class="or-div"><span>o</span></div>
+
+                <button class="btn-outline w-full" onclick="doLogin()">
+                    Entrar como invitado
+                </button>
+
+                <p class="register-prompt">¿Sin cuenta? <a href="#" class="link-g" onclick="event.preventDefault(); mostrarRegistro()">Regístrate gratis</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     APP PRINCIPAL
+═══════════════════════════════════ -->
+<div class="screen" id="screen-app">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="topbar-l">
+            <button type="button" class="hamburger" title="Abrir menú" onclick="toggleMenu()">
+                <span></span><span></span><span></span>
+            </button>
+            <div class="tb-brand">⚡ <span>Electrolineras</span></div>
+        </div>
+        <div class="topbar-r">
+            <button type="button" class="icon-btn" title="Notificaciones" onclick="showToast('Sin notificaciones nuevas ')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            </button>
+            <div class="avatar-chip" onclick="goTab('cuenta')">SR</div>
+        </div>
+    </header>
+
+    <!-- MENÚ LATERAL -->
+    <div class="overlay" id="menu-overlay" onclick="closeMenu()"></div>
+    <nav class="side-menu" id="side-menu">
+        <div class="sm-profile">
+            <div class="sm-av">SR</div>
+            <div>
+                <div class="sm-name">Sofía Ramírez</div>
+                <div class="sm-mail">sramirez@gmail.com</div>
+            </div>
+        </div>
+        <div class="sm-body">
+            <p class="sm-sec">Principal</p>
+            <button class="sm-row" onclick="goTab('inicio');closeMenu()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Inicio</button>
+            <button class="sm-row" onclick="goTab('estaciones');closeMenu()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Estaciones</button>
+            <p class="sm-sec">Mi cuenta</p>
+            <button class="sm-row" onclick="goTab('historial');closeMenu()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> Historial</button>
+            <button class="sm-row acc-toggle" onclick="toggleAcc('acc-vehiculos-m');cargarVehiculosSidebar()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h13l4 4v6a2 2 0 0 1-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg> Mis vehículos <span class="acc-icon" id="ico-acc-vehiculos-m">›</span>
+            </button>
+            <div class="acc-body" id="acc-vehiculos-m">
+                <div class="acc-row" id="sm-vehiculos-list" style="color:var(--text-3);font-size:0.8rem">Cargando...</div>
+                <div class="acc-row link-g" onclick="abrirModalVehiculo();closeMenu()" style="cursor:pointer;font-weight:600">+ Agregar vehículo</div>
+            </div>
+            <button class="sm-row acc-toggle" onclick="toggleAcc('acc-plan-m');cargarPlanSidebar()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Mi plan <span class="acc-icon" id="ico-acc-plan-m">›</span>
+            </button>
+            <div class="acc-body" id="acc-plan-m">
+                <div id="sm-plan-info" class="acc-row" style="color:var(--text-3);font-size:0.8rem">Cargando...</div>
+                <div class="acc-row link-g" onclick="abrirModalPlanes();closeMenu()" style="cursor:pointer;font-weight:600">Cambiar plan →</div>
+            </div>
+            <button class="sm-row acc-toggle" onclick="toggleAcc('acc-pago-m');cargarPagosSidebar()">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> Pagos y facturas <span class="acc-icon" id="ico-acc-pago-m">›</span>
+            </button>
+            <div class="acc-body" id="acc-pago-m">
+                <div id="sm-pagos-list" style="color:var(--text-3);font-size:0.8rem;padding:8px 12px 4px 28px">Cargando...</div>
+                <div class="acc-row link-g" onclick="goTab('historial');closeMenu()" style="cursor:pointer">Ver historial completo →</div>
+            </div>
+            <p class="sm-sec">Otros</p>
+            <button class="sm-row" onclick="showToast('Configuración próximamente')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg> Configuración</button>
+            <button class="sm-row danger" onclick="doLogout()"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Cerrar sesión</button>
+        </div>
+    </nav>
+
+    <!-- ─── CONTENIDO ─── -->
+    <main class="app-main">
+
+        <!-- TAB INICIO -->
+        <div class="tab active" id="tab-inicio">
+            <div class="greeting">
+                <div>
+                    <div class="gr-hi">Hola, <strong>Sofía</strong> </div>
+                    <div class="gr-sub">¿Listo para cargar hoy?</div>
+                </div>
+                <div class="net-badge"><span class="net-dot"></span> Red activa</div>
+            </div>
+
+            <!-- BOTÓN PRINCIPAL DE CARGA -->
+            <section class="charge-section">
+                <div class="charge-orbit">
+                    <div class="orbit-ring r1"></div>
+                    <div class="orbit-ring r2"></div>
+                    <button class="charge-btn" id="charge-btn" onclick="iniciarCarga()">
+                        <span class="cb-bolt">⚡</span>
+                        <span class="cb-text">Iniciar<br>Carga</span>
+                    </button>
+                </div>
+                <p class="charge-hint">Toca para encontrar una estación cercana</p>
+            </section>
+
+            <!-- Tarjeta vehículo -->
+            <section class="card veh-card">
+                <div class="card-toprow">
+                    <span class="card-lbl">Mi vehículo</span>
+                    <button class="link-g sm" onclick="goTab('cuenta')">Cambiar ›</button>
+                </div>
+                <div class="veh-row">
+                    <span class="veh-ico"></span>
+                    <div>
+                        <div class="veh-n">Tesla Model 3</div>
+                        <div class="veh-d">ABC-123-GDL · 2022</div>
+                    </div>
+                    <div class="bat-wrap">
+                        <div class="bat-body">
+                            <div class="bat-fill" style="width:68%"></div>
+                            <div class="bat-nub"></div>
+                        </div>
+                        <span class="bat-pct">68%</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estaciones rápidas -->
+            <div class="sec-toprow">
+                <h2 class="sec-title">Estaciones cercanas</h2>
+                <button class="link-g sm" onclick="goTab('estaciones')">Ver todas ›</button>
+            </div>
+            <div class="strip" id="home-strip"></div>
+
+            <!-- Última carga -->
+            <div class="card last-card">
+                <span class="card-lbl" style="display:block;margin-bottom:10px">Última carga</span>
+                <div class="lc-row">
+                    <span class="lc-ico">kWh</span>
+                    <div>
+                        <div class="lc-n">Electrolineras Plaza Galerías</div>
+                        <div class="lc-d">15 Abr 2025 · 42 min</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div class="lc-kwh">28.4 kWh</div>
+                        <div class="lc-cost">$142</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB ESTACIONES -->
+        <div class="tab" id="tab-estaciones">
+            <div class="tab-hdr">
+                <h1 class="tab-title">Estaciones</h1>
+                <p class="tab-sub">Encuentra dónde cargar tu auto</p>
+            </div>
+            <div class="search-bar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="search-est" placeholder="Ciudad, nombre de estación..." oninput="renderEstaciones()">
+            </div>
+            <div class="chips" id="chips-row">
+                <button class="chip active" data-f="" onclick="setChip(this,'')">Todas</button>
+                <button class="chip" data-f="activa" onclick="setChip(this,'activa')">✓ Disponibles</button>
+                <button class="chip" data-f="ocupada" onclick="setChip(this,'ocupada')">· Ocupadas</button>
+                <button class="chip" data-f="mantenimiento" onclick="setChip(this,'mantenimiento')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg> Mantenimiento</button>
+            </div>
+            <div id="stations-list"></div>
+        </div>
+
+        <!-- TAB CARGANDO -->
+        <div class="tab" id="tab-cargando">
+            <div class="charging-view">
+                <div class="cv-location">
+                    <div class="cv-loc-name"> Electrolineras Plaza Galerías</div>
+                    <div class="cv-loc-detail">Puerto 4 · CCS2 · 90 kW</div>
+                </div>
+                <div class="pr-wrap">
+                    <svg class="pr-svg" viewBox="0 0 200 200">
+                        <circle class="pr-track" cx="100" cy="100" r="86"/>
+                        <circle class="pr-arc" cx="100" cy="100" r="86" id="pr-arc"
+                                stroke-dasharray="540" stroke-dashoffset="540"/>
+                    </svg>
+                    <div class="pr-inner">
+                        <div class="pr-pct" id="pr-pct">0%</div>
+                        <div class="pr-sub">Cargado</div>
+                    </div>
+                </div>
+                <div class="cs-stats">
+                    <div class="cs-s">
+                        <div class="cs-val" id="cs-kwh">0.0</div>
+                        <div class="cs-lbl">kWh</div>
+                    </div>
+                    <div class="cs-div"></div>
+                    <div class="cs-s">
+                        <div class="cs-val" id="cs-time">0 min</div>
+                        <div class="cs-lbl">Tiempo</div>
+                    </div>
+                    <div class="cs-div"></div>
+                    <div class="cs-s">
+                        <div class="cs-val" id="cs-cost">$0</div>
+                        <div class="cs-lbl">Costo</div>
+                    </div>
+                </div>
+                <div class="card tariff-card">
+                    <div class="tar-row"><span>Tarifa activa</span><strong>$6.00 / kWh</strong></div>
+                    <div class="tar-row"><span>Método de pago</span><strong> •••• 4242</strong></div>
+                </div>
+                <button class="btn-danger w-full" onclick="detenerCarga()">Detener carga</button>
+            </div>
+        </div>
+
+        <!-- TAB HISTORIAL -->
+        <div class="tab" id="tab-historial">
+            <div class="tab-hdr">
+                <h1 class="tab-title">Historial</h1>
+                <p class="tab-sub">Tus sesiones de carga</p>
+            </div>
+            <div class="month-summary">
+                <div class="ms-i"><div class="ms-v">6</div><div class="ms-l">Cargas</div></div>
+                <div class="ms-d"></div>
+                <div class="ms-i"><div class="ms-v">148.3 kWh</div><div class="ms-l">Energía</div></div>
+                <div class="ms-d"></div>
+                <div class="ms-i"><div class="ms-v">$892</div><div class="ms-l">Gasto</div></div>
+            </div>
+            <div id="history-list"></div>
+        </div>
+
+        <!-- TAB CUENTA -->
+        <div class="tab" id="tab-cuenta">
+            <div class="tab-hdr">
+                <h1 class="tab-title">Mi cuenta</h1>
+            </div>
+            <div class="card profile-card">
+                <div class="prof-row">
+                    <div class="prof-av">SR</div>
+                    <div>
+                        <div class="prof-name">Sofía Ramírez</div>
+                        <div class="prof-mail">sramirez@gmail.com</div>
+                        <div class="prof-since">Miembro desde Mar 2023</div>
+                    </div>
+                    <button type="button" class="edit-btn" title="Editar perfil" onclick="showToast('Edición próximamente')"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                </div>
+            </div>
+
+            <div class="card plan-card">
+                <div class="card-lbl" style="display:block;margin-bottom:14px">Mi plan</div>
+                <div class="plan-row">
+                    <div>
+                        <div class="plan-name">Plan Básico</div>
+                        <div class="plan-det">100 kWh · $299/mes</div>
+                    </div>
+                    <button class="btn-primary sm" onclick="showToast('Próximamente')">Cambiar</button>
+                </div>
+                <div style="margin-top:14px">
+                    <div class="usage-row">
+                        <span>Uso del mes</span><span>78 / 100 kWh</span>
+                    </div>
+                    <div class="usage-track"><div class="usage-fill" style="width:78%"></div></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-toprow" style="margin-bottom:14px">
+                    <span class="card-lbl">Mis vehículos</span>
+                    <button class="link-g sm" onclick="showToast('Próximamente')">+ Agregar</button>
+                </div>
+                <div class="vi-row">
+                    <span class="vi-ico"></span>
+                    <div>
+                        <div class="vi-n">Tesla Model 3</div>
+                        <div class="vi-d">2022 · ABC-123-GDL · 75 kWh</div>
+                    </div>
+                    <span class="tag-green">Principal</span>
+                </div>
+            </div>
+
+            <div class="acc-group">
+                <button class="acc-trig" onclick="toggleAcc('a-pagos')">
+                    <span> Pagos y facturas</span>
+                    <span class="acc-icon" id="ico-a-pagos">›</span>
+                </button>
+                <div class="acc-body" id="a-pagos">
+                    <div class="acc-row">Tarjeta •••• 4242 (Principal)</div>
+                    <div class="acc-row">Ver facturas anteriores</div>
+                    <div class="acc-row link-g">+ Agregar método de pago</div>
+                </div>
+                <button class="acc-trig" onclick="toggleAcc('a-notif')">
+                    <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notificaciones</span>
+                    <span class="acc-icon" id="ico-a-notif">›</span>
+                </button>
+                <div class="acc-body" id="a-notif">
+                    <div class="acc-row">Carga completada — <strong>Activado</strong></div>
+                    <div class="acc-row">Recordatorios — <strong>Activado</strong></div>
+                    <div class="acc-row">Promociones — Desactivado</div>
+                </div>
+                <button class="acc-trig" onclick="toggleAcc('a-ayuda')">
+                    <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Ayuda y soporte</span>
+                    <span class="acc-icon" id="ico-a-ayuda">›</span>
+                </button>
+                <div class="acc-body" id="a-ayuda">
+                    <div class="acc-row">Centro de ayuda</div>
+                    <div class="acc-row">Reportar un problema</div>
+                    <div class="acc-row link-g">Chat con soporte →</div>
+                </div>
+            </div>
+
+            <button class="btn-outline w-full" style="margin-top:8px" onclick="doLogout()">
+                Cerrar sesión
+            </button>
+        </div>
+
+    </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="bottom-nav">
+        <button class="bn" data-t="inicio" onclick="goTab('inicio')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Inicio</span>
+        </button>
+        <button class="bn" data-t="estaciones" onclick="goTab('estaciones')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>Estaciones</span>
+        </button>
+        <button class="bn bn-charge" onclick="iniciarCarga()">
+            <div class="bn-fab">⚡</div>
+        </button>
+        <button class="bn" data-t="historial" onclick="goTab('historial')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <span>Historial</span>
+        </button>
+        <button class="bn" data-t="cuenta" onclick="goTab('cuenta')">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Cuenta</span>
+        </button>
+    </nav>
+</div>
+
+<!-- MODAL: Agregar vehículo -->
+<div class="modal-bg" id="modal-vehiculo">
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <h3 class="sheet-title">Agregar vehículo</h3>
+        <p class="sheet-sub">Registra tu auto eléctrico</p>
+        <div class="form-group">
+            <label class="form-label">Marca</label>
+            <div class="input-wrap" style="padding:0 12px">
+                <select id="mv-marca" aria-label="Marca del vehículo" style="flex:1;border:none;outline:none;padding:12px 0;background:transparent;font-size:0.9rem;color:var(--text)" onchange="filtrarModelosSidebar()">
+                    <option value="">Selecciona marca...</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Modelo</label>
+            <div class="input-wrap" style="padding:0 12px">
+                <select id="mv-modelo" aria-label="Modelo del vehículo" style="flex:1;border:none;outline:none;padding:12px 0;background:transparent;font-size:0.9rem;color:var(--text)">
+                    <option value="">Primero selecciona una marca</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Placa</label>
+            <div class="input-wrap">
+                <span class="input-icon" style="display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h2a2 2 0 0 1 2 2"/><path d="M6 3H4a2 2 0 0 0-2 2"/><circle cx="9" cy="13" r="2"/><path d="M15 12h2"/><path d="M15 16h2"/><path d="M11 16.5A4 4 0 0 0 5 17"/></svg></span>
+                <input type="text" id="mv-placa" class="form-input" placeholder="ABC-123-GDL" style="text-transform:uppercase">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Año</label>
+            <div class="input-wrap">
+                <span class="input-icon" style="display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+                <input type="number" id="mv-anio" class="form-input" placeholder="2024" min="2000" max="2025">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Capacidad de batería (kWh) — opcional</label>
+            <div class="input-wrap">
+                <span class="input-icon" style="display:flex;align-items:center;font-size:0.75rem;font-weight:600;color:var(--text-3)">kWh</span>
+                <input type="number" id="mv-kwh" class="form-input" placeholder="75" step="0.1">
+            </div>
+        </div>
+        <button class="btn-primary w-full" id="mv-save-btn" onclick="guardarVehiculoModal()">Registrar vehículo</button>
+        <button class="btn-outline w-full" style="margin-top:8px" onclick="closeModal('modal-vehiculo')">Cancelar</button>
+    </div>
+</div>
+
+<!-- MODAL: Cambiar plan -->
+<div class="modal-bg" id="modal-planes">
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <h3 class="sheet-title">Planes disponibles</h3>
+        <p class="sheet-sub">Elige el plan que mejor se adapte a ti</p>
+        <div id="modal-planes-list"></div>
+        <button class="btn-outline w-full" style="margin-top:12px" onclick="closeModal('modal-planes')">Cancelar</button>
+    </div>
+</div>
+
+<!-- MODAL: Elegir estación -->
+<div class="modal-bg" id="modal-station">
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <h3 class="sheet-title">¿Dónde quieres cargar?</h3>
+        <p class="sheet-sub">Selecciona una estación disponible</p>
+        <div id="modal-est-list"></div>
+        <button class="btn-outline w-full" style="margin-top:12px" onclick="closeModal('modal-station')">Cancelar</button>
+    </div>
+</div>
+
+<!-- MODAL: Carga completada -->
+<div class="modal-bg" id="modal-done">
+    <div class="modal-sheet" style="text-align:center">
+        <div class="sheet-handle"></div>
+        <div class="done-check" style="font-size:2.5rem;color:var(--primary)">✓</div>
+        <h3 class="sheet-title">¡Carga completada!</h3>
+        <div class="done-rows">
+            <div class="done-row"><span>Energía cargada</span><strong id="d-kwh">—</strong></div>
+            <div class="done-row"><span>Tiempo total</span><strong id="d-time">—</strong></div>
+            <div class="done-row"><span>Costo total</span><strong id="d-cost">—</strong></div>
+        </div>
+        <button class="btn-primary w-full" onclick="finalizarSesion()">Ver historial</button>
+        <button class="btn-outline w-full" style="margin-top:8px" onclick="finalizarSesion()">Volver al inicio</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
