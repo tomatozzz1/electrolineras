@@ -1,0 +1,188 @@
+<div class="screen" id="screen-admin">
+
+    <header class="admin-topbar">
+        <div class="topbar-l">
+            <div class="tb-brand">⚡ <span>Electrolineras</span></div>
+            <span class="admin-badge">Admin</span>
+        </div>
+        <div class="topbar-r">
+            <div id="admin-avatar" class="avatar-chip" style="cursor:default">--</div>
+            <button class="btn-outline" style="padding:6px 14px;font-size:0.8rem" onclick="doLogout()">Salir</button>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+
+        <!-- Sidebar admin -->
+        <nav class="admin-nav">
+            <button class="admin-nav-item active" data-section="dashboard" onclick="adminGoTo('dashboard')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                Dashboard
+            </button>
+            <button class="admin-nav-item" data-section="estaciones" onclick="adminGoTo('estaciones')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                Estaciones
+            </button>
+            <button class="admin-nav-item" data-section="cargadores" onclick="adminGoTo('cargadores')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Cargadores
+            </button>
+            <button class="admin-nav-item" data-section="usuarios" onclick="adminGoTo('usuarios')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                Usuarios
+            </button>
+            <button class="admin-nav-item" data-section="mantenimiento" onclick="adminGoTo('mantenimiento')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                Mantenimiento
+            </button>
+            <button class="admin-nav-item" data-section="reportes" onclick="adminGoTo('reportes')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Reportes
+            </button>
+            <button class="admin-nav-item" data-section="tarifas" onclick="adminGoTo('tarifas')">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Tarifas
+            </button>
+        </nav>
+
+        <!-- Contenido admin -->
+        <main class="admin-main">
+
+            <!-- Dashboard -->
+            <section class="admin-section active" id="admin-dashboard">
+                <h1 class="admin-title">Dashboard</h1>
+                <div class="admin-kpis" id="admin-kpis"></div>
+                <div class="admin-grid-2">
+                    <div class="admin-card">
+                        <div class="admin-card-title">Estaciones por estado</div>
+                        <div id="admin-est-status"></div>
+                    </div>
+                    <div class="admin-card">
+                        <div class="admin-card-title">Sesiones recientes</div>
+                        <div id="admin-sesiones-recientes"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estaciones -->
+            <section class="admin-section" id="admin-estaciones">
+                <div class="admin-section-header">
+                    <h1 class="admin-title">Estaciones</h1>
+                </div>
+                <div class="admin-card">
+                    <table class="admin-table" id="tabla-estaciones">
+                        <thead><tr>
+                            <th>ID</th><th>Nombre</th><th>Ciudad</th>
+                            <th>Cargadores</th><th>Puertos libres</th>
+                            <th>Estado</th><th>Acción</th>
+                        </tr></thead>
+                        <tbody id="tbody-estaciones"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Cargadores -->
+            <section class="admin-section" id="admin-cargadores">
+                <h1 class="admin-title">Cargadores</h1>
+                <div class="admin-card">
+                    <table class="admin-table">
+                        <thead><tr>
+                            <th>ID</th><th>Estación</th><th>Fabricante</th>
+                            <th>Modelo</th><th>Potencia</th><th>Puertos</th>
+                            <th>Estado</th><th>Acción</th>
+                        </tr></thead>
+                        <tbody id="tbody-cargadores"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Usuarios -->
+            <section class="admin-section" id="admin-usuarios">
+                <h1 class="admin-title">Usuarios</h1>
+                <div class="admin-card">
+                    <table class="admin-table">
+                        <thead><tr>
+                            <th>ID</th><th>Nombre</th><th>Email</th>
+                            <th>Tipo</th><th>Vehículos</th><th>Sesiones</th><th>Registro</th>
+                        </tr></thead>
+                        <tbody id="tbody-usuarios"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Mantenimiento -->
+            <section class="admin-section" id="admin-mantenimiento">
+                <h1 class="admin-title">Órdenes de mantenimiento</h1>
+                <div class="admin-card">
+                    <table class="admin-table">
+                        <thead><tr>
+                            <th>ID</th><th>Estación</th><th>Cargador</th>
+                            <th>Técnico</th><th>Problema</th><th>Fecha</th>
+                            <th>Estado</th><th>Acción</th>
+                        </tr></thead>
+                        <tbody id="tbody-ordenes"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reportes -->
+            <section class="admin-section" id="admin-reportes">
+                <h1 class="admin-title">Reportes</h1>
+                <div class="admin-tabs">
+                    <button class="admin-tab active" onclick="adminRepTab(this,'rep-op')">Operativo</button>
+                    <button class="admin-tab" onclick="adminRepTab(this,'rep-fin')">Financiero</button>
+                </div>
+                <div class="admin-card" id="rep-op">
+                    <table class="admin-table">
+                        <thead><tr><th>Fecha</th><th>Sesiones</th><th>Energía (kWh)</th><th>Ingresos</th></tr></thead>
+                        <tbody id="tbody-rep-op"></tbody>
+                    </table>
+                </div>
+                <div class="admin-card" id="rep-fin" style="display:none">
+                    <table class="admin-table">
+                        <thead><tr><th>Fecha</th><th>Ingresos</th><th>Reembolsos</th><th>Utilidad</th></tr></thead>
+                        <tbody id="tbody-rep-fin"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Tarifas -->
+            <section class="admin-section" id="admin-tarifas">
+                <div class="admin-section-header">
+                    <h1 class="admin-title">Tarifas de energía</h1>
+                    <button class="btn-primary" style="padding:8px 16px;font-size:0.85rem" onclick="abrirModalTarifa()">+ Nueva tarifa</button>
+                </div>
+                <div class="admin-card">
+                    <table class="admin-table">
+                        <thead><tr><th>ID</th><th>Precio/kWh</th><th>Inicio</th><th>Fin</th><th>Estado</th></tr></thead>
+                        <tbody id="tbody-tarifas"></tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Modal nueva tarifa -->
+    <div class="modal-bg" id="modal-tarifa">
+        <div class="modal-sheet" style="max-width:420px;margin:auto;border-radius:16px">
+            <div class="sheet-handle"></div>
+            <h3 class="sheet-title">Nueva tarifa</h3>
+            <div class="form-group">
+                <label class="form-label">Precio por kWh ($)</label>
+                <div class="input-wrap"><input type="number" id="t-precio" class="form-input" placeholder="6.00" step="0.01"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Fecha inicio</label>
+                <div class="input-wrap"><input type="date" id="t-inicio" class="form-input" title="Fecha de inicio"></div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Fecha fin (opcional)</label>
+                <div class="input-wrap"><input type="date" id="t-fin" class="form-input" title="Fecha fin"></div>
+            </div>
+            <button class="btn-primary w-full" onclick="guardarTarifa()">Guardar tarifa</button>
+            <button type="button" class="btn-outline w-full" onclick="closeModal('modal-tarifa')">Cancelar</button>
+        </div>
+    </div>
+
+</div>

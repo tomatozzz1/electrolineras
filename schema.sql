@@ -332,7 +332,7 @@ CREATE TABLE tecnicos (
 CREATE TABLE ordenes_mantenimiento (
     id_orden_mantenimiento SERIAL PRIMARY KEY,
     id_cargador            INT NOT NULL,
-    id_tecnico             INT NOT NULL,
+    id_tecnico             INT,
     fecha_reporte          TIMESTAMP NOT NULL DEFAULT NOW(),
     descripcion_problema   TEXT,
     estado                 VARCHAR(20) NOT NULL DEFAULT 'pendiente',

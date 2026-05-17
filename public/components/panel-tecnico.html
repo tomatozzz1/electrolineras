@@ -1,0 +1,111 @@
+<div class="screen" id="screen-tecnico">
+
+    <header class="admin-topbar">
+        <div class="topbar-l">
+            <div class="tb-brand">⚡ <span>Electrolineras</span></div>
+            <span class="admin-badge" style="background:var(--warn-lt);color:var(--warn)">Técnico</span>
+        </div>
+        <div class="topbar-r">
+            <div id="tecnico-avatar" class="avatar-chip" style="cursor:default;background:var(--warn)">--</div>
+            <button class="btn-outline" style="padding:6px 14px;font-size:0.8rem" onclick="doLogout()">Salir</button>
+        </div>
+    </header>
+
+    <div style="max-width:900px;margin:0 auto;padding:24px 16px">
+
+        <!-- Perfil técnico -->
+        <div class="admin-card" style="margin-bottom:20px">
+            <div style="display:flex;align-items:center;gap:16px">
+                <div class="avatar-chip" id="tecnico-av-big"
+                     style="width:52px;height:52px;font-size:1rem;cursor:default;background:var(--warn)">--</div>
+                <div>
+                    <div id="tecnico-nombre" style="font-weight:700;font-size:1rem;color:var(--text)">—</div>
+                    <div id="tecnico-especialidad" style="font-size:0.82rem;color:var(--text-2);margin-top:2px">—</div>
+                    <div id="tecnico-telefono" style="font-size:0.78rem;color:var(--text-3);margin-top:2px">—</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats rápidas -->
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+            <div class="admin-card" style="text-align:center">
+                <div id="tec-total" style="font-family:var(--font-d);font-size:1.8rem;font-weight:800;color:var(--primary)">0</div>
+                <div style="font-size:0.75rem;color:var(--text-3);margin-top:4px">Órdenes totales</div>
+            </div>
+            <div class="admin-card" style="text-align:center">
+                <div id="tec-pendientes" style="font-family:var(--font-d);font-size:1.8rem;font-weight:800;color:var(--warn)">0</div>
+                <div style="font-size:0.75rem;color:var(--text-3);margin-top:4px">Pendientes</div>
+            </div>
+            <div class="admin-card" style="text-align:center">
+                <div id="tec-completadas" style="font-family:var(--font-d);font-size:1.8rem;font-weight:800;color:var(--green-500)">0</div>
+                <div style="font-size:0.75rem;color:var(--text-3);margin-top:4px">Completadas</div>
+            </div>
+        </div>
+
+        <!-- Órdenes asignadas -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+            <h2 style="font-family:var(--font-d);font-size:1rem;font-weight:700;color:var(--text)">
+                Órdenes de mantenimiento
+            </h2>
+            <button id="tec-toggle" onclick="tecnicoToggleFiltro()"
+                style="padding:5px 12px;border-radius:20px;font-size:0.75rem;font-weight:600;
+                       border:1px solid var(--primary);color:var(--primary);
+                       background:transparent;cursor:pointer">
+                Ver solo las mías
+            </button>
+        </div>
+        <div id="tecnico-ordenes"></div>
+
+        <div style="text-align:center;margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+            <p style="font-size:0.82rem;color:var(--text-3);margin-bottom:12px">
+                ¿Encontraste un problema en algún cargador?
+            </p>
+            <button onclick="abrirModalReporte()"
+                style="padding:10px 28px;background:var(--primary);color:#fff;
+                       border:none;border-radius:var(--r);font-size:0.88rem;
+                       font-weight:600;cursor:pointer;box-shadow:var(--shadow)">
+                + Reportar nuevo problema
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal reportar problema -->
+    <div class="modal-bg" id="modal-reporte">
+        <div class="modal-sheet">
+            <div class="sheet-handle"></div>
+            <h3 class="sheet-title">Reportar problema</h3>
+            <p class="sheet-sub">Selecciona el cargador afectado y describe el problema</p>
+
+            <div class="form-group">
+                <label class="form-label">Estación y cargador</label>
+                <div class="input-wrap" style="padding:0 12px">
+                    <select id="r-cargador" aria-label="Selecciona el cargador con problema"
+                        style="flex:1;border:none;outline:none;padding:12px 0;
+                               background:transparent;font-size:0.88rem;color:var(--text)">
+                        <option value="">Cargando...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:12px">
+                <label class="form-label">Descripción del problema</label>
+                <div class="input-wrap" style="align-items:flex-start;padding:4px 12px">
+                    <textarea id="r-descripcion"
+                        style="flex:1;border:none;outline:none;padding:8px 0;
+                               background:transparent;font-size:0.88rem;color:var(--text);
+                               resize:none;min-height:100px;font-family:inherit;line-height:1.5"
+                        placeholder="Ej: La pantalla táctil no responde al tacto..."></textarea>
+                </div>
+            </div>
+
+            <button class="btn-primary w-full" style="margin-top:4px" onclick="guardarReporte()">
+                Enviar reporte
+            </button>
+            <button class="btn-outline w-full" style="margin-top:8px" onclick="closeModal('modal-reporte')">
+                Cancelar
+            </button>
+        </div>
+    </div>
+
+    </div>
+</div>

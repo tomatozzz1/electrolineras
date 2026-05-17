@@ -1,3 +1,6 @@
+-- Electrolineras - Seed de datos actualizado
+-- Contrasena de todos los usuarios: 12345678
+
 INSERT INTO tipos_usuario (nombre_tipo, descripcion) VALUES
 ('administrador', 'Acceso total al sistema'),
 ('cliente',       'Usuario que contrata servicios'),
@@ -64,18 +67,26 @@ INSERT INTO estados_cargador (nombre_estado, descripcion) VALUES
 INSERT INTO impuestos (nombre_impuesto, porcentaje) VALUES
 ('IVA', 16.00);
 
+-- IDs 1-10: clientes y admin | IDs 11-16: tecnicos
 INSERT INTO direcciones (calle, numero, ciudad, estado, codigo_postal) VALUES
-('Ruisenor',          '10', 'Zapopan', 'Jalisco', '45134'),
-('Paloma',            '22', 'Zapopan', 'Jalisco', '45134'),
-('Camino a Copalita', '5',  'Zapopan', 'Jalisco', '45134'),
-('Encino',            '8',  'Zapopan', 'Jalisco', '45134'),
-('Gavilan',           '3',  'Zapopan', 'Jalisco', '45134'),
-('Aguila',            '17', 'Zapopan', 'Jalisco', '45134'),
-('Fresno',            '9',  'Zapopan', 'Jalisco', '45134'),
-('Palma',             '1',  'Zapopan', 'Jalisco', '45134'),
-('Limon',             '6',  'Zapopan', 'Jalisco', '45134'),
-('Papaya',            '14', 'Zapopan', 'Jalisco', '45134');
+('Ruisenor',              '10',   'Zapopan', 'Jalisco', '45134'),
+('Paloma',                '22',   'Zapopan', 'Jalisco', '45134'),
+('Camino a Copalita',     '5',    'Zapopan', 'Jalisco', '45134'),
+('Encino',                '8',    'Zapopan', 'Jalisco', '45134'),
+('Gavilan',               '3',    'Zapopan', 'Jalisco', '45134'),
+('Aguila',                '17',   'Zapopan', 'Jalisco', '45134'),
+('Fresno',                '9',    'Zapopan', 'Jalisco', '45134'),
+('Palma',                 '1',    'Zapopan', 'Jalisco', '45134'),
+('Limon',                 '6',    'Zapopan', 'Jalisco', '45134'),
+('Papaya',                '14',   'Zapopan', 'Jalisco', '45134'),
+('Av. Patria',            '1200', 'Zapopan', 'Jalisco', '45030'),
+('Av. Vallarta',          '6503', 'Zapopan', 'Jalisco', '45010'),
+('Blvd. Puerta de Hierro','45',   'Zapopan', 'Jalisco', '45116'),
+('Av. Acueducto',         '800',  'Zapopan', 'Jalisco', '45116'),
+('Calle Moctezuma',       '320',  'Zapopan', 'Jalisco', '45100'),
+('Av. Lopez Mateos Norte','1500', 'Zapopan', 'Jalisco', '45050');
 
+-- clientes y administrador
 INSERT INTO usuarios (nombre, apellido, email, telefono, password_usuario, id_direccion, id_tipo_usuario) VALUES
 ('Juan',     'Perez Perez',      'juanperez@gmail.com',        '3324157475', '12345678', 1,  (SELECT id_tipo_usuario FROM tipos_usuario WHERE nombre_tipo = 'administrador')),
 ('Jonathan', 'Garcia Garcia',    'jonaga@gmail.com',           '3321157475', '12345678', 2,  (SELECT id_tipo_usuario FROM tipos_usuario WHERE nombre_tipo = 'cliente')),
@@ -87,6 +98,14 @@ INSERT INTO usuarios (nombre, apellido, email, telefono, password_usuario, id_di
 ('Maria',    'Rivera Contreras', 'maria@gmail.com',            '3329257475', '12345678', 8,  (SELECT id_tipo_usuario FROM tipos_usuario WHERE nombre_tipo = 'cliente')),
 ('David',    'Visbal Arjona',    'david@gmail.com',            '3331257475', '12345678', 9,  (SELECT id_tipo_usuario FROM tipos_usuario WHERE nombre_tipo = 'tecnico')),
 ('Lucia',    'Martinez Soto',    'lucia@gmail.com',            '3332157475', '12345678', 10, (SELECT id_tipo_usuario FROM tipos_usuario WHERE nombre_tipo = 'cliente'));
+
+-- tecnicos con cuenta de usuario
+INSERT INTO usuarios (nombre, apellido, email, telefono, password_usuario, id_direccion, id_tipo_usuario) VALUES
+('Carlos',  'Mendoza',       'carlos.mendoza@electrolineras.com', '3310001111', '12345678', 11, (SELECT id_tipo_usuario FROM tipos_usuario WHERE nombre_tipo = 'tecnico')),
+('Laura',   'Jimenez',       'laura.jimenez@electrolineras.com',  '3310002222', '12345678', 12, (SELECT id_tipo_usuario FROM tipos_usuario WHERE nombre_tipo = 'tecnico')),
+('Pedro',   'Sanchez',       'pedro.sanchez@electrolineras.com',  '3310003333', '12345678', 13, (SELECT id_tipo_usuario FROM tipos_usuario WHERE nombre_tipo = 'tecnico')),
+('Ana',     'Torres',        'ana.torres@electrolineras.com',     '3310004444', '12345678', 14, (SELECT id_tipo_usuario FROM tipos_usuario WHERE nombre_tipo = 'tecnico')),
+('Roberto', 'Flores',        'roberto.flores@electrolineras.com', '3310005555', '12345678', 15, (SELECT id_tipo_usuario FROM tipos_usuario WHERE nombre_tipo = 'tecnico'));
 
 INSERT INTO marcas_vehiculo (nombre_marca, pais_origen) VALUES
 ('Toyota',     'Japon'),
@@ -168,16 +187,16 @@ INSERT INTO historial_estado_cargador (id_cargador, id_estado_cargador, fecha_in
 (5, (SELECT id_estado_cargador FROM estados_cargador WHERE nombre_estado = 'fuera de servicio'), NOW() - INTERVAL '1 hour',  'Falla detectada');
 
 INSERT INTO vehiculos (id_usuario, id_modelo, placa, anio, capacidad_bateria_kwh) VALUES
-((SELECT id_usuario FROM usuarios WHERE email = 'juanalacubana@gmail.com'),   (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'Dolphin'),        'JAL-1234',  2025, 71.4),
-((SELECT id_usuario FROM usuarios WHERE email = 'superman@gmail.com'),         (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'Prologue'),       'MEX-5678',  2025, 82.0),
-((SELECT id_usuario FROM usuarios WHERE email = 'homer@gmail.com'),            (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'IONIQ 5'),        'GDL-9012',  2025, 84.0),
-((SELECT id_usuario FROM usuarios WHERE email = 'jessylavaquerita@gmail.com'), (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'Ariya'),          'NLE-3456',  2025, 54.0),
-((SELECT id_usuario FROM usuarios WHERE email = 'elena@gmail.com'),            (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'Blazer EV'),      'QRO-2468',  2025, 102.0),
-((SELECT id_usuario FROM usuarios WHERE email = 'maria@gmail.com'),            (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'Mustang Mach-E'), 'PUE-1357',  2025, 91.0),
-((SELECT id_usuario FROM usuarios WHERE email = 'david@gmail.com'),            (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'bZ4X'),           'BCN-4826',  2025, 85.0),
-((SELECT id_usuario FROM usuarios WHERE email = 'lucia@gmail.com'),            (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'ID.4'),           'SLP-9753',  2025, 87.0),
-((SELECT id_usuario FROM usuarios WHERE email = 'jonaga@gmail.com'),           (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'e-2008'),         'ZAC-1111',  2024, 60.5),
-((SELECT id_usuario FROM usuarios WHERE email = 'juanperez@gmail.com'),        (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'EX30'),           'ZAP-9999',  2025, 69.0);
+((SELECT id_usuario FROM usuarios WHERE email = 'juanalacubana@gmail.com'),   (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'Dolphin'),        'JAL-1234', 2025, 71.4),
+((SELECT id_usuario FROM usuarios WHERE email = 'superman@gmail.com'),         (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'Prologue'),       'MEX-5678', 2025, 82.0),
+((SELECT id_usuario FROM usuarios WHERE email = 'homer@gmail.com'),            (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'IONIQ 5'),        'GDL-9012', 2025, 84.0),
+((SELECT id_usuario FROM usuarios WHERE email = 'jessylavaquerita@gmail.com'), (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'Ariya'),          'NLE-3456', 2025, 54.0),
+((SELECT id_usuario FROM usuarios WHERE email = 'elena@gmail.com'),            (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'Blazer EV'),      'QRO-2468', 2025, 102.0),
+((SELECT id_usuario FROM usuarios WHERE email = 'maria@gmail.com'),            (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'Mustang Mach-E'), 'PUE-1357', 2025, 91.0),
+((SELECT id_usuario FROM usuarios WHERE email = 'david@gmail.com'),            (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'bZ4X'),           'BCN-4826', 2025, 85.0),
+((SELECT id_usuario FROM usuarios WHERE email = 'lucia@gmail.com'),            (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'ID.4'),           'SLP-9753', 2025, 87.0),
+((SELECT id_usuario FROM usuarios WHERE email = 'jonaga@gmail.com'),           (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'e-2008'),         'ZAC-1111', 2024, 60.5),
+((SELECT id_usuario FROM usuarios WHERE email = 'juanperez@gmail.com'),        (SELECT id_modelo FROM modelos_vehiculo WHERE nombre_modelo = 'EX30'),           'ZAP-9999', 2025, 69.0);
 
 INSERT INTO suscripciones (id_usuario, id_plan, fecha_inicio, fecha_fin, estado) VALUES
 ((SELECT id_usuario FROM usuarios WHERE email = 'juanalacubana@gmail.com'),   (SELECT id_plan FROM planes_suscripcion WHERE nombre_plan = 'Plan Plata'),   '2025-04-25', '2025-05-25', 'activa'),
@@ -239,11 +258,12 @@ INSERT INTO reembolsos (id_pago, monto, motivo, fecha_reembolso) VALUES
 (6, 413.86, 'Falla en el cargador durante la sesion', '2026-04-10 19:00:00');
 
 INSERT INTO tecnicos (nombre_tecnico, telefono, especialidad_tecnico) VALUES
-('Carlos Mendoza', '3310001111', 'Cargadores DC'),
-('Laura Jimenez',  '3310002222', 'Instalaciones electricas'),
-('Pedro Sanchez',  '3310003333', 'Sistemas de control'),
-('Ana Torres',     '3310004444', 'Mantenimiento preventivo'),
-('Roberto Flores', '3310005555', 'Cargadores AC');
+('Carlos Mendoza',     '3310001111', 'Cargadores DC'),
+('Laura Jimenez',      '3310002222', 'Instalaciones electricas'),
+('Pedro Sanchez',      '3310003333', 'Sistemas de control'),
+('Ana Torres',         '3310004444', 'Mantenimiento preventivo'),
+('Roberto Flores',     '3310005555', 'Cargadores AC'),
+('David Visbal Arjona','3331257475', 'Mantenimiento general');
 
 INSERT INTO ordenes_mantenimiento (id_cargador, id_tecnico, fecha_reporte, descripcion_problema, estado) VALUES
 (1, 1, '2026-04-01 09:00:00', 'Pantalla tactil sin respuesta',    'completada'),
