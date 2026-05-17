@@ -1,4 +1,6 @@
 /* 
+   Electrolineras — Servidor API REST
+   Stack: Node.js + Express + PostgreSQL (pg)
    Puerto: 3000 (configurable en .env)
     */
 
@@ -57,11 +59,20 @@ app.post('/api/auth/registro', async (req, res) => {
 
         const hash = await bcrypt.hash(password, 10);
 
+        // Buscar el ID real del tipo 'cliente' en lugar de asumir que es 1
+        const tipoResult = await query(
+            `SELECT id_tipo_usuario FROM tipos_usuario WHERE nombre_tipo = 'cliente' LIMIT 1`
+        );
+        const idTipoCliente = tipoResult.rows[0]?.id_tipo_usuario;
+        if (!idTipoCliente) {
+            return res.status(500).json({ error: 'Tipo de usuario cliente no encontrado en la base de datos' });
+        }
+
         const result = await query(
             `INSERT INTO usuarios (nombre, apellido, email, telefono, password_usuario, id_tipo_usuario)
-             VALUES ($1, $2, $3, $4, $5, 1)          -- 1 = cliente
+             VALUES ($1, $2, $3, $4, $5, $6)
              RETURNING id_usuario, nombre, apellido, email, telefono, fecha_registro`,
-            [nombre, apellido, email, telefono || null, hash]
+            [nombre, apellido, email, telefono || null, hash, idTipoCliente]
         );
 
         res.status(201).json({ ok: true, usuario: result.rows[0] });
@@ -383,16 +394,24 @@ app.put('/api/sesiones/:id/finalizar', async (req, res) => {
                  energia_consumida_kwh = $1,
                  costo_total = $2
              WHERE id_sesion = $3
-             RETURNING *, (SELECT id_puerto FROM sesiones_carga WHERE id_sesion = $3) AS id_puerto_ref`,
+             RETURNING *`,
             [energia_consumida_kwh || 0, costo.toFixed(2), req.params.id]
         );
 
         if (sesion.rows.length === 0) throw new Error('Sesión no encontrada');
 
-        // Liberar puerto
+        // Liberar puerto (el trigger lo hace también, pero lo forzamos)
         await client.query(
             'UPDATE puertos_carga SET estado = $1 WHERE id_puerto = $2',
             ['libre', sesion.rows[0].id_puerto]
+        );
+
+        // Registrar pago con el método seleccionado por el usuario
+        const idMetodoPago = req.body.id_metodo_pago || 1;
+        await client.query(
+            `INSERT INTO pagos (id_usuario, id_metodo_pago, id_sesion, monto, estado)
+             VALUES ($1, $2, $3, $4, 'completado')`,
+            [sesion.rows[0].id_usuario, idMetodoPago, sesion.rows[0].id_sesion, costo.toFixed(2)]
         );
 
         await client.query('COMMIT');

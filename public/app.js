@@ -1,7 +1,4 @@
-/* 
-   CARGADOR DE COMPONENTES
-   Carga cada sección HTML desde /components/ e inyecta en el DOM
-    */
+// carga componentes HTML
 
 const COMPONENTS = [
     { slot: 'slot-login',           file: '/components/login.html' },
@@ -29,10 +26,10 @@ async function loadComponents() {
     }));
 }
 
-/* 
+/* ════════════════════════════════════════════════════════════
    Electrolineras — Frontend conectado a la API
    URL del backend: http://localhost:3000
-    */
+   ════════════════════════════════════════════════════════════ */
 
 'use strict';
 
@@ -50,9 +47,7 @@ const State = {
     estacionFilter: '',
 };
 
-/* 
-   UTILIDADES
-    */
+// utilidades
 function showToast(msg, dur = 3000) {
     const t = document.getElementById('toast');
     t.textContent = msg;
@@ -83,9 +78,7 @@ function emptyState(icon, msg, sub = '') {
     </div>`;
 }
 
-/* 
-   LLAMADAS A LA API
-    */
+// api
 async function apiFetch(path, options = {}) {
     try {
         const res = await fetch(API + path, {
@@ -103,9 +96,7 @@ async function apiFetch(path, options = {}) {
     }
 }
 
-/* 
-   LOGIN / REGISTRO
-    */
+// auth
 function togglePass(btn) {
     const input = btn.closest('.input-wrap').querySelector('input');
     input.type = input.type === 'password' ? 'text' : 'password';
@@ -227,9 +218,7 @@ function doLogout() {
     location.reload();
 }
 
-/* 
-   NAVEGACIÓN
-    */
+// navegación
 function goTab(name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     const el = document.getElementById(`tab-${name}`);
@@ -256,9 +245,9 @@ function toggleAcc(id) {
     if (icon) icon.style.transform = open ? 'rotate(90deg)' : '';
 }
 
-/* 
+/* ════════════════════════════════════════════════════════════
    INICIALIZACIÓN DE LA APP
-    */
+   ════════════════════════════════════════════════════════════ */
 async function initApp() {
     const u = State.usuario;
 
@@ -274,7 +263,7 @@ async function initApp() {
     const since = document.querySelector('.prof-since');
     if (since) since.textContent = `Miembro desde ${fDate(u.fecha_registro)}`;
 
-    // Tarifa vigente
+    // tarifa vigente
     try {
         const t = await apiFetch('/tarifas/vigente');
         State.tarifaKwh = parseFloat(t.precio_kwh);
@@ -292,9 +281,9 @@ async function initApp() {
     goTab('inicio');
 }
 
-/* 
+/* ════════════════════════════════════════════════════════════
    INICIO — saludo y vehículo
-    */
+   ════════════════════════════════════════════════════════════ */
 async function renderGreeting() {
     const u  = State.usuario;
     const hi = document.querySelector('.gr-hi');
@@ -337,9 +326,9 @@ async function renderVehiculoCard() {
     }
 }
 
-/* 
+/* ════════════════════════════════════════════════════════════
    HOME STRIP — estaciones disponibles
-    */
+   ════════════════════════════════════════════════════════════ */
 async function renderHomeStrip() {
     const strip = document.getElementById('home-strip');
     if (!strip) return;
@@ -396,9 +385,7 @@ async function renderUltimaCarga() {
     } catch(_) {}
 }
 
-/* 
-   ESTACIONES
-    */
+// estaciones
 let chipFilter = '';
 
 function setChip(btn, filter) {
@@ -477,9 +464,7 @@ function stationCard(e) {
     </div>`;
 }
 
-/* 
-   INICIAR CARGA — selección de estación y puerto
-    */
+// iniciar carga
 async function iniciarCarga() {
     if (!State.usuario) { showToast('Inicia sesión primero'); return; }
     if (State.sesionActiva) { goTab('cargando'); return; }
@@ -578,9 +563,9 @@ async function confirmarCarga(idEst, idPuerto) {
     }
 }
 
-/* 
+/* ════════════════════════════════════════════════════════════
    SESIÓN ACTIVA — animación y contador
-    */
+   ════════════════════════════════════════════════════════════ */
 async function iniciarCounterCarga(sesion, idEst) {
     State.chargeStart = Date.now();
     State.chargeKwh   = 0;
@@ -597,54 +582,68 @@ async function iniciarCounterCarga(sesion, idEst) {
         document.querySelector('.cv-loc-detail').textContent = `Puerto ${sesion.id_puerto} · ${conector} · ${potencia} kW`;
     } catch(_) {}
 
-    // Tarifa y metodo de pago real
+    // tarifa
     document.querySelector('.tar-row:first-child strong').textContent = `$${State.tarifaKwh.toFixed(2)} / kWh`;
-    try {
-        const pagos = await apiFetch(`/usuarios/${State.usuario.id_usuario}/pagos`);
-        const metodo = pagos[0]?.nombre_metodo || 'Tarjeta de credito';
-        document.querySelector('.tar-row:last-child strong').textContent = metodo;
-    } catch(_) {}
+
+    // método de pago
+    if (!State.metodoPago) {
+        try {
+            const metodos = await apiFetch('/metodos-pago');
+            const pagos   = await apiFetch(`/usuarios/${State.usuario.id_usuario}/pagos`);
+            const idUltimo = pagos[0]?.id_metodo_pago;
+            State.metodoPago = metodos.find(m => m.id_metodo_pago === idUltimo) || metodos[0];
+        } catch(_) {}
+    }
+    const tarRow = document.querySelector('.tar-row:last-child strong');
+    if (tarRow) tarRow.textContent = State.metodoPago?.nombre_metodo || 'Sin método seleccionado';
 
     // Modo cargando en botón principal
     const cbtn = document.getElementById('charge-btn');
     cbtn.classList.add('charging');
     cbtn.querySelector('.cb-text').textContent = 'Cargando…';
 
-    // Reset ring y stats
+    // valores de carga
+    const cap       = parseFloat(State.vehiculo?.capacidad_bateria_kwh || 60);
+    const startPct  = 30;
+    const targetPct = 85;
+    const totalKwh  = cap * (targetPct - startPct) / 100;
+
+    // estado inicial
     document.getElementById('pr-arc').style.strokeDashoffset = '540';
-    document.getElementById('pr-pct').textContent = '0%';
+    document.getElementById('pr-pct').textContent = `${startPct}%`;
     document.getElementById('cs-kwh').textContent  = '0.0';
     document.getElementById('cs-time').textContent = '0s';
     document.getElementById('cs-cost').textContent = '$0';
 
     goTab('cargando');
 
-    // Simular consumo - velocidad acelerada para demo (1 kWh/seg ≈ completa en ~40s)
+    // simulación
     const kwPerSec = 1.0;
     let elapsedSec = 0;
 
     State.chargeInterval = setInterval(() => {
         elapsedSec++;
         State.chargeKwh += kwPerSec;
-        const cost    = State.chargeKwh * State.tarifaKwh;
-        const cap     = parseFloat(State.vehiculo?.capacidad_bateria_kwh || 60);
-        const startPct = 30; // bateria al inicio de la carga
-        const targetPct = 85; // objetivo de carga
-        const totalKwh = cap * (targetPct - startPct) / 100;
+
         const progress = Math.min(State.chargeKwh / totalKwh, 1);
         const battPct  = Math.round(startPct + progress * (targetPct - startPct));
+        const cost     = State.chargeKwh * State.tarifaKwh;
+        const offset   = 540 * (1 - progress);
 
-        // Ring SVG
-        const offset = 540 * (1 - progress);
         document.getElementById('pr-arc').style.strokeDashoffset = offset;
         document.getElementById('pr-pct').textContent = `${battPct}%`;
-
-        // Stats
         document.getElementById('cs-kwh').textContent  = State.chargeKwh.toFixed(2);
         document.getElementById('cs-time').textContent = elapsedSec < 60
             ? `${elapsedSec}s`
             : `${Math.floor(elapsedSec/60)}m ${elapsedSec % 60}s`;
         document.getElementById('cs-cost').textContent = fmxn(cost);
+
+        // auto-stop
+        if (progress >= 1) {
+            clearInterval(State.chargeInterval);
+            State.chargeInterval = null;
+            mostrarResumen();
+        }
 
     }, 1000);
 }
@@ -656,7 +655,10 @@ async function detenerCarga() {
     try {
         const data = await apiFetch(`/sesiones/${State.sesionActiva.id_sesion}/finalizar`, {
             method: 'PUT',
-            body: JSON.stringify({ energia_consumida_kwh: State.chargeKwh }),
+            body: JSON.stringify({
+                energia_consumida_kwh: State.chargeKwh,
+                id_metodo_pago: State.metodoPago?.id_metodo_pago || 1,
+            }),
         });
 
         const s = data.sesion;
@@ -687,9 +689,7 @@ async function finalizarSesion() {
     goTab('historial');
 }
 
-/* 
-   HISTORIAL
-    */
+// historial
 async function renderHistorial() {
     const list = document.getElementById('history-list');
     if (!list || !State.usuario) return;
@@ -754,9 +754,7 @@ async function renderHistorial() {
     }
 }
 
-/* 
-   PERFIL / CUENTA
-    */
+// cuenta
 async function renderPerfil() {
     if (!State.usuario) return;
 
@@ -817,25 +815,72 @@ async function renderMetodosPago() {
             apiFetch('/metodos-pago'),
             apiFetch(`/usuarios/${State.usuario.id_usuario}/pagos`),
         ]);
-        const ultimoPago = pagos[0];
-        const metodoTop  = ultimoPago?.nombre_metodo || metodos[0]?.nombre_metodo || '—';
+
+        // Si no hay metodo seleccionado, usar el del ultimo pago o el primero disponible
+        if (!State.metodoPago && metodos.length > 0) {
+            const metodoUltimoPago = pagos[0]?.id_metodo_pago;
+            State.metodoPago = metodos.find(m => m.id_metodo_pago === metodoUltimoPago) || metodos[0];
+        }
+
+        // Sección de pagos recientes
+        const pagosHtml = pagos.length === 0
+            ? `<div class="acc-row" style="color:var(--text-3);font-style:italic">
+                Sin pagos registrados aún
+               </div>`
+            : pagos.slice(0,3).map(p => `
+                <div class="acc-row" style="display:flex;justify-content:space-between;font-size:0.82rem">
+                    <span style="color:var(--text-2)">${p.nombre_metodo} · ${p.nombre_estacion?.replace('Electrolineras ','') || 'Suscripción'}</span>
+                    <span style="color:var(--primary);font-weight:600">${fmxn(p.monto)}</span>
+                </div>`).join('');
+
+        // Métodos de pago seleccionables
+        const metodosHtml = metodos.map(m => {
+            const seleccionado = State.metodoPago?.id_metodo_pago === m.id_metodo_pago;
+            return `
+            <div onclick="seleccionarMetodoPago(${m.id_metodo_pago}, '${m.nombre_metodo}')"
+                 style="display:flex;align-items:center;gap:10px;padding:10px 12px;
+                        border-radius:10px;cursor:pointer;margin-bottom:6px;
+                        border:${seleccionado ? '2px solid var(--primary)' : '1px solid var(--border)'};
+                        background:${seleccionado ? 'var(--green-50)' : 'var(--surface)'}">
+                <div style="width:18px;height:18px;border-radius:50%;flex-shrink:0;
+                            border:${seleccionado ? '5px solid var(--primary)' : '2px solid var(--gray-200)'};
+                            background:${seleccionado ? 'white' : 'transparent'}"></div>
+                <div>
+                    <div style="font-size:0.85rem;font-weight:${seleccionado ? '700' : '500'};
+                                color:${seleccionado ? 'var(--primary)' : 'var(--text)'}">
+                        ${m.nombre_metodo}
+                    </div>
+                    <div style="font-size:0.72rem;color:var(--text-3)">${m.descripcion || ''}</div>
+                </div>
+                ${seleccionado ? '<span style="margin-left:auto;font-size:0.75rem;color:var(--primary);font-weight:700">Predeterminado</span>' : ''}
+            </div>`;
+        }).join('');
+
         accBody.innerHTML = `
-            <div class="acc-row" style="color:var(--primary);font-weight:600">
-                Último pago: ${metodoTop}
+            <div style="padding:10px 12px 6px;font-size:0.72rem;font-weight:700;
+                        color:var(--text-3);text-transform:uppercase;letter-spacing:1px">
+                Método de pago
             </div>
-            ${pagos.slice(0,3).map(p => `
-            <div class="acc-row" style="display:flex;justify-content:space-between">
-                <span>${p.nombre_metodo} · ${p.nombre_estacion?.replace('Electrolineras ','') || 'Suscripción'}</span>
-                <span style="color:var(--primary);font-weight:600">${fmxn(p.monto)}</span>
-            </div>`).join('')}
-            ${pagos.length === 0 ? '<div class="acc-row" style="color:var(--text-3)">Sin pagos registrados</div>' : ''}
-            <div class="acc-row" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
-                ${metodos.map(m => `<span style="background:var(--green-100);color:var(--primary);
-                    padding:3px 10px;border-radius:20px;font-size:0.72rem;font-weight:600">
-                    ${m.nombre_metodo}</span>`).join('')}
+            ${metodosHtml}
+            ${pagos.length > 0 ? `
+            <div style="padding:10px 12px 6px;font-size:0.72rem;font-weight:700;
+                        color:var(--text-3);text-transform:uppercase;letter-spacing:1px;
+                        border-top:1px solid var(--border);margin-top:6px">
+                Últimos pagos
             </div>
+            ${pagosHtml}` : ''}
         `;
     } catch(_) {}
+}
+
+// Seleccionar método de pago predeterminado
+function seleccionarMetodoPago(idMetodo, nombreMetodo) {
+    State.metodoPago = { id_metodo_pago: idMetodo, nombre_metodo: nombreMetodo };
+    showToast(`Método de pago: ${nombreMetodo}`);
+    renderMetodosPago(); // Refrescar UI
+
+    // Actualizar también en sidebar si está abierto
+    cargarPagosSidebar();
 }
 
 async function renderVehiculosCuenta() {
@@ -920,9 +965,9 @@ async function guardarVehiculo() {
     }
 }
 
-/* 
+/* ════════════════════════════════════════════════════════════
    PLANES
-    */
+   ════════════════════════════════════════════════════════════ */
 async function mostrarPlanes() {
     try {
         const planes = await apiFetch('/planes');
@@ -930,9 +975,7 @@ async function mostrarPlanes() {
     } catch(err) { showToast(err.message); }
 }
 
-/* 
-   SIDEBAR — Carga dinámica de acordeones
-    */
+// sidebar
 
 // Carga vehículos reales del usuario en el sidebar
 async function cargarVehiculosSidebar() {
@@ -984,15 +1027,34 @@ async function cargarPagosSidebar() {
     const el = document.getElementById('sm-pagos-list');
     if (!el || !State.usuario || el.dataset.loaded) return;
     try {
-        const pagos = await apiFetch(`/usuarios/${State.usuario.id_usuario}/pagos`);
+        const [pagos, metodos] = await Promise.all([
+            apiFetch(`/usuarios/${State.usuario.id_usuario}/pagos`),
+            apiFetch('/metodos-pago'),
+        ]);
+
+        // Metodo actual seleccionado
+        const metodoActual = State.metodoPago?.nombre_metodo
+            || pagos[0]?.nombre_metodo
+            || metodos[0]?.nombre_metodo
+            || '—';
+
         if (pagos.length === 0) {
-            el.textContent = 'Sin pagos registrados';
+            el.innerHTML = `
+                <div style="color:var(--text-3);font-size:0.8rem;padding:4px 0">Sin pagos aún</div>
+                <div style="color:var(--primary);font-size:0.8rem;font-weight:600;margin-top:4px">
+                    Método: ${metodoActual}
+                </div>`;
         } else {
-            el.innerHTML = pagos.slice(0,3).map(p => `
-                <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:0.8rem;border-bottom:1px solid var(--border)">
+            el.innerHTML = `
+                <div style="color:var(--primary);font-size:0.8rem;font-weight:600;margin-bottom:6px">
+                    Método: ${metodoActual}
+                </div>
+                ${pagos.slice(0,2).map(p => `
+                <div style="display:flex;justify-content:space-between;padding:4px 0;
+                            font-size:0.78rem;border-bottom:1px solid var(--border)">
                     <span style="color:var(--text-2)">${p.nombre_metodo}</span>
                     <span style="color:var(--primary);font-weight:600">${fmxn(p.monto)}</span>
-                </div>`).join('');
+                </div>`).join('')}`;
         }
         el.dataset.loaded = '1';
     } catch(err) {
@@ -1011,9 +1073,7 @@ function resetSidebarCache() {
     });
 }
 
-/* 
-   MODAL: AGREGAR VEHÍCULO (desde sidebar)
-    */
+// modal vehículo
 
 let _marcasCache = [];
 let _modelosCache = [];
@@ -1100,9 +1160,7 @@ async function guardarVehiculoModal() {
     }
 }
 
-/* 
-   MODAL: CAMBIAR PLAN
-    */
+// modal planes
 
 async function abrirModalPlanes() {
     openModal('modal-planes');
@@ -1161,9 +1219,7 @@ async function contratarPlan(idPlan, nombrePlan) {
     }
 }
 
-/* 
-   ARRANQUE
-    */
+// arranque
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Cargar todos los componentes HTML primero
     await loadComponents();
