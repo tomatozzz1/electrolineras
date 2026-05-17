@@ -1,0 +1,70 @@
+<div class="screen active" id="screen-login">
+    <div class="login-layout">
+
+        <div class="login-hero">
+            <div class="login-hero-inner">
+                <div class="brand-mark">
+                    <div class="brand-icon">⚡</div>
+                    <span class="brand-name">Electrolineras</span>
+                </div>
+                <h1 class="hero-headline">Carga tu auto<br><em>cuando quieras</em></h1>
+                <p class="hero-sub">Red de electrolineras inteligentes en todo México. Rápido, seguro y sustentable.</p>
+                <div class="hero-stats">
+                    <div class="h-stat"><span class="h-n">8</span><span class="h-l">Estaciones</span></div>
+                    <div class="h-div"></div>
+                    <div class="h-stat"><span class="h-n">19</span><span class="h-l">Cargadores</span></div>
+                    <div class="h-div"></div>
+                    <div class="h-stat"><span class="h-n">24/7</span><span class="h-l">Disponible</span></div>
+                </div>
+            </div>
+            <div class="hero-circle c1"></div>
+            <div class="hero-circle c2"></div>
+            <div class="hero-circle c3"></div>
+        </div>
+
+        <div class="login-form-panel">
+            <div class="login-form-wrap">
+                <div class="mobile-brand">
+                    <span>⚡</span> Electrolineras
+                </div>
+                <h2 class="form-title">Bienvenido de vuelta</h2>
+                <p class="form-sub">Ingresa a tu cuenta para continuar</p>
+
+                <div class="form-group">
+                    <label class="form-label">Correo electrónico</label>
+                    <div class="input-wrap">
+                        <span class="input-icon" style="display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></span>
+                        <input type="email" id="login-email" class="form-input"
+                               placeholder="tucorreo@ejemplo.com">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Contraseña</label>
+                    <div class="input-wrap">
+                        <span class="input-icon" style="display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+                        <input type="password" id="login-pass" class="form-input"
+                               placeholder="••••••••">
+                        <button type="button" class="pass-toggle" tabindex="-1" onclick="togglePass(this)" aria-label="Mostrar contraseña" title="Mostrar contraseña">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="check-label">
+                        <input type="checkbox" checked> Recordarme
+                    </label>
+                    <a href="#" class="link-g">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button class="btn-primary w-full" id="login-btn" onclick="doLogin()">
+                    Iniciar sesión <span class="btn-arr">→</span>
+                </button>
+
+
+                <p class="register-prompt">¿Sin cuenta? <a href="#" class="link-g" onclick="event.preventDefault(); mostrarRegistro()">Regístrate gratis</a></p>
+            </div>
+        </div>
+    </div>
+</div>

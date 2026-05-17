@@ -1,0 +1,80 @@
+<div class="tab" id="tab-cuenta">
+            <div class="tab-hdr">
+                <h1 class="tab-title">Mi cuenta</h1>
+            </div>
+            <div class="card profile-card">
+                <div class="prof-row">
+                    <div class="prof-av" id="prof-avatar-chip">--</div>
+                    <div>
+                        <div class="prof-name">Sofía Ramírez</div>
+                        <div class="prof-mail">sramirez@gmail.com</div>
+                        <div class="prof-since">Miembro desde Mar 2023</div>
+                    </div>
+                    <button type="button" class="edit-btn" onclick="showToast('Edición próximamente')" aria-label="Editar perfil"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+                </div>
+            </div>
+
+            <div class="card plan-card">
+                <div class="card-lbl" style="display:block;margin-bottom:14px">Mi plan</div>
+                <div class="plan-row">
+                    <div>
+                        <div class="plan-name">Plan Básico</div>
+                        <div class="plan-det">100 kWh · $299/mes</div>
+                    </div>
+                    <button class="btn-primary sm" id="plan-action-btn" onclick="abrirModalPlanes()">Cambiar</button>
+                </div>
+                <div style="margin-top:14px" id="plan-usage-wrap">
+                    <div class="usage-row">
+                        <span>Uso del mes</span>
+                        <span id="plan-usage-text">— kWh</span>
+                    </div>
+                    <div class="usage-track">
+                        <div class="usage-fill" id="plan-usage-bar" style="width:0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-toprow" style="margin-bottom:14px">
+                    <span class="card-lbl">Mis vehículos</span>
+                    <button class="link-g sm" onclick="abrirModalVehiculo()">+ Agregar</button>
+                </div>
+                <div id="vehiculos-cuenta-list"></div>
+            </div>
+
+            <div class="acc-group">
+                <button class="acc-trig" onclick="toggleAcc('a-pagos')">
+                    <span> Pagos y facturas</span>
+                    <span class="acc-icon" id="ico-a-pagos">›</span>
+                </button>
+                <div class="acc-body" id="a-pagos">
+                    <div class="acc-row">Tarjeta •••• 4242 (Principal)</div>
+                    <div class="acc-row">Ver facturas anteriores</div>
+                    <div class="acc-row link-g">+ Agregar método de pago</div>
+                </div>
+                <button class="acc-trig" onclick="toggleAcc('a-notif')">
+                    <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Notificaciones</span>
+                    <span class="acc-icon" id="ico-a-notif">›</span>
+                </button>
+                <div class="acc-body" id="a-notif">
+                    <div class="acc-row">Carga completada — <strong>Activado</strong></div>
+                    <div class="acc-row">Recordatorios — <strong>Activado</strong></div>
+                    <div class="acc-row">Promociones — Desactivado</div>
+                </div>
+                <button class="acc-trig" onclick="toggleAcc('a-ayuda')">
+                    <span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Ayuda y soporte</span>
+                    <span class="acc-icon" id="ico-a-ayuda">›</span>
+                </button>
+                <div class="acc-body" id="a-ayuda">
+                    <div class="acc-row">Centro de ayuda</div>
+                    <div class="acc-row">Reportar un problema</div>
+                    <div class="acc-row link-g">Chat con soporte →</div>
+                </div>
+            </div>
+
+            <button class="btn-outline w-full" style="margin-top:8px" onclick="doLogout()">
+                Cerrar sesión
+            </button>
+        </div>
+
+    </main>

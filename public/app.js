@@ -1,4 +1,36 @@
 /* 
+   CARGADOR DE COMPONENTES
+   Carga cada sección HTML desde /components/ e inyecta en el DOM
+    */
+
+const COMPONENTS = [
+    { slot: 'slot-login',           file: '/components/login.html' },
+    { slot: 'slot-topbar',          file: '/components/topbar.html' },
+    { slot: 'slot-sidebar',         file: '/components/sidebar.html' },
+    { slot: 'slot-tab-inicio',      file: '/components/tab-inicio.html' },
+    { slot: 'slot-tab-estaciones',  file: '/components/tab-estaciones.html' },
+    { slot: 'slot-tab-cargando',    file: '/components/tab-cargando.html' },
+    { slot: 'slot-tab-historial',   file: '/components/tab-historial.html' },
+    { slot: 'slot-tab-cuenta',      file: '/components/tab-cuenta.html' },
+    { slot: 'slot-bottom-nav',      file: '/components/bottom-nav.html' },
+    { slot: 'slot-modales',         file: '/components/modales.html' },
+];
+
+async function loadComponents() {
+    await Promise.all(COMPONENTS.map(async ({ slot, file }) => {
+        try {
+            const res  = await fetch(file);
+            const html = await res.text();
+            const el   = document.getElementById(slot);
+            if (el) el.innerHTML = html;
+        } catch (err) {
+            console.error(`Error cargando componente ${file}:`, err);
+        }
+    }));
+}
+
+/* 
+   Electrolineras — Frontend conectado a la API
    URL del backend: http://localhost:3000
     */
 
@@ -6,10 +38,11 @@
 
 const API = 'http://localhost:3000/api';
 
+/* ─── ESTADO GLOBAL ─── */
 const State = {
-    usuario:        null,    
-    vehiculo:       null,    
-    sesionActiva:   null,    
+    usuario:        null,    // objeto usuario del backend
+    vehiculo:       null,    // vehículo principal
+    sesionActiva:   null,    // { id_sesion, id_puerto, ... }
     chargeInterval: null,
     chargeStart:    null,
     chargeKwh:      0,
@@ -100,7 +133,13 @@ async function doLogin() {
         document.getElementById('screen-login').classList.remove('active');
         document.getElementById('screen-app').classList.add('active');
 
-        initApp();
+        await initApp();
+
+        // Si el usuario no tiene vehiculo ni plan, mandarlo a cuenta para completar perfil
+        if (!data.vehiculo) {
+            showToast('Completa tu perfil: agrega tu vehículo y elige un plan');
+            setTimeout(() => goTab('cuenta'), 1500);
+        }
     } catch (err) {
         showToast(err.message, 3500);
         btn.textContent = 'Iniciar sesión →';
@@ -226,8 +265,11 @@ async function initApp() {
     // Llenar UI con datos del usuario
     document.querySelectorAll('.sm-name, .prof-name').forEach(el => el.textContent = `${u.nombre} ${u.apellido}`);
     document.querySelectorAll('.sm-mail, .prof-mail').forEach(el => el.textContent = u.email);
-    document.querySelectorAll('.sm-av, .prof-av, .avatar-chip').forEach(el => {
-        el.textContent = (u.nombre[0] + u.apellido[0]).toUpperCase();
+    // Actualizar avatares con iniciales reales
+    const iniciales = (u.nombre[0] + u.apellido[0]).toUpperCase();
+    ['sm-avatar-chip','top-avatar-chip','prof-avatar-chip'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = iniciales;
     });
     const since = document.querySelector('.prof-since');
     if (since) since.textContent = `Miembro desde ${fDate(u.fecha_registro)}`;
@@ -721,12 +763,44 @@ async function renderPerfil() {
     // Suscripción
     try {
         const sub = await apiFetch(`/usuarios/${State.usuario.id_usuario}/suscripcion`);
-        const pnm = document.querySelector('.plan-name');
-        const pdt = document.querySelector('.plan-det');
-        if (pnm) pnm.textContent = sub ? sub.nombre_plan : 'Sin plan activo';
-        if (pdt) pdt.textContent = sub
-            ? `${sub.energia_incluida_kwh} kWh · ${fmxn(sub.precio_mensual)}/mes`
-            : 'Pago por uso';
+        const pnm    = document.querySelector('.plan-name');
+        const pdt    = document.querySelector('.plan-det');
+        const planBtn = document.getElementById('plan-action-btn');
+        const usageWrap = document.getElementById('plan-usage-wrap');
+        const usageText = document.getElementById('plan-usage-text');
+        const usageBar  = document.getElementById('plan-usage-bar');
+
+        if (!sub) {
+            // Usuario sin plan
+            if (pnm) pnm.textContent = 'Sin plan activo';
+            if (pdt) pdt.textContent = 'Elige un plan para empezar a cargar';
+            if (planBtn) planBtn.textContent = 'Elegir plan';
+            if (usageWrap) usageWrap.style.display = 'none';
+        } else {
+            if (pnm) pnm.textContent = sub.nombre_plan;
+            if (pdt) pdt.textContent = `${sub.energia_incluida_kwh} kWh incluidos · ${fmxn(sub.precio_mensual)}/mes`;
+            if (planBtn) planBtn.textContent = 'Cambiar plan';
+
+            // Calcular uso real del mes desde sesiones
+            try {
+                const sesiones = await apiFetch(`/usuarios/${State.usuario.id_usuario}/sesiones`);
+                const mesActual = new Date().getMonth();
+                const anioActual = new Date().getFullYear();
+                const usadoMes = sesiones
+                    .filter(s => {
+                        const d = new Date(s.hora_inicio);
+                        return d.getMonth() === mesActual && d.getFullYear() === anioActual && s.hora_fin;
+                    })
+                    .reduce((sum, s) => sum + parseFloat(s.energia_consumida_kwh || 0), 0);
+
+                const incluido = parseFloat(sub.energia_incluida_kwh) || 0;
+                const pct = incluido > 0 ? Math.min((usadoMes / incluido) * 100, 100) : 0;
+
+                if (usageText) usageText.textContent = `${usadoMes.toFixed(1)} / ${incluido} kWh`;
+                if (usageBar) usageBar.style.width = `${pct}%`;
+                if (usageWrap) usageWrap.style.display = 'block';
+            } catch(_) {}
+        }
     } catch(_) {}
 
     // Metodos de pago reales
@@ -765,100 +839,41 @@ async function renderMetodosPago() {
 }
 
 async function renderVehiculosCuenta() {
-    const wrap = document.querySelector('.card .vi-row')?.parentElement;
-    if (!wrap || !State.usuario) return;
+    const container = document.getElementById('vehiculos-cuenta-list');
+    if (!container || !State.usuario) return;
 
     try {
         const vehs = await apiFetch(`/usuarios/${State.usuario.id_usuario}/vehiculos`);
-        const topRow = wrap.querySelector('.card-toprow');
 
         if (vehs.length === 0) {
-            if (topRow) topRow.after(Object.assign(document.createElement('div'), {
-                className: 'vi-row',
-                innerHTML: emptyState('', 'Sin vehículos', '<button class="btn-primary sm" onclick="mostrarFormVehiculo()">+ Agregar vehículo</button>'),
-            }));
+            container.innerHTML = `
+                <div style="text-align:center;padding:16px 0">
+                    <div style="color:var(--text-3);font-size:0.85rem;margin-bottom:12px">
+                        Aún no tienes vehículos registrados
+                    </div>
+                    <button class="btn-primary sm" onclick="abrirModalVehiculo()">
+                        + Agregar mi vehículo
+                    </button>
+                </div>`;
             return;
         }
 
-        const existing = wrap.querySelector('.vi-row');
-        if (existing) existing.remove();
-        vehs.forEach(v => {
-            const row = document.createElement('div');
-            row.className = 'vi-row';
-            row.style.marginTop = '8px';
-            row.innerHTML = `
-                <span class="vi-ico" style="display:flex;color:var(--text-3)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h13l4 4v6a2 2 0 0 1-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg></span>
+        container.innerHTML = vehs.map((v, i) => `
+            <div class="vi-row" style="${i > 0 ? 'margin-top:10px;padding-top:10px;border-top:1px solid var(--border)' : ''}">
+                <span class="vi-ico" style="display:flex;color:var(--text-3)">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M5 17H3a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h13l4 4v6a2 2 0 0 1-2 2h-2"/>
+                        <circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>
+                    </svg>
+                </span>
                 <div>
                     <div class="vi-n">${v.nombre_marca} ${v.nombre_modelo}</div>
                     <div class="vi-d">${v.anio} · ${v.placa} · ${v.capacidad_bateria_kwh || '?'} kWh</div>
                 </div>
-                ${v.id_vehiculo === vehs[0].id_vehiculo ? '<span class="tag-green">Principal</span>' : ''}`;
-            topRow ? topRow.after(row) : wrap.appendChild(row);
-        });
+                ${i === 0 ? '<span class="tag-green">Principal</span>' : ''}
+            </div>`).join('');
     } catch(_) {}
 }
-
-async function mostrarFormVehiculo() {
-    // Cargar catálogos
-    let marcas = [], modelos = [];
-    try {
-        marcas  = await apiFetch('/marcas');
-        modelos = await apiFetch('/modelos');
-    } catch(err) { showToast(err.message); return; }
-
-    const marcasOpts  = marcas.map(m  => `<option value="${m.id_marca}">${m.nombre_marca}</option>`).join('');
-    const modelosOpts = modelos.map(m => `<option value="${m.id_modelo}" data-marca="${m.id_marca}">${m.nombre_marca} ${m.nombre_modelo}</option>`).join('');
-
-    // Inyectar formulario en acordeón de vehículos
-    const container = document.createElement('div');
-    container.className = 'card';
-    container.style.marginBottom = '12px';
-    container.innerHTML = `
-        <div class="card-lbl" style="display:block;margin-bottom:14px">Registrar vehículo</div>
-        <div class="form-group">
-            <label class="form-label">Marca</label>
-            <div class="input-wrap" style="padding:0 12px">
-                <select id="v-marca" style="flex:1;border:none;outline:none;padding:12px 0;background:transparent;font-size:0.9rem;color:var(--text)" onchange="filtrarModelos()">
-                    <option value="">Selecciona marca…</option>${marcasOpts}
-                </select>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Modelo</label>
-            <div class="input-wrap" style="padding:0 12px">
-                <select id="v-modelo" style="flex:1;border:none;outline:none;padding:12px 0;background:transparent;font-size:0.9rem;color:var(--text)">
-                    <option value="">Primero selecciona una marca</option>${modelosOpts}
-                </select>
-            </div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Placa</label>
-            <div class="input-wrap"><span class="input-icon"></span>
-            <input type="text" id="v-placa" class="form-input" placeholder="ABC-123-GDL" style="text-transform:uppercase"></div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Año</label>
-            <div class="input-wrap"><span class="input-icon"></span>
-            <input type="number" id="v-anio" class="form-input" placeholder="${new Date().getFullYear()}" min="2000" max="${new Date().getFullYear()}"></div>
-        </div>
-        <div class="form-group">
-            <label class="form-label">Capacidad de batería (kWh) — opcional</label>
-            <div class="input-wrap"><span class="input-icon">kWh</span>
-            <input type="number" id="v-kwh" class="form-input" placeholder="75" step="0.1"></div>
-        </div>
-        <button class="btn-primary w-full" id="v-save-btn" onclick="guardarVehiculo()">Guardar vehículo</button>
-        <button class="btn-outline w-full" style="margin-top:8px" onclick="this.closest('.card').remove()">Cancelar</button>
-    `;
-
-    // Insertar antes del acordeón de pagos
-    const accGroup = document.querySelector('.acc-group');
-    if (accGroup) accGroup.before(container);
-
-    // Ocultar modelos al inicio; solo mostrar los de la marca seleccionada
-    window._todosModelos = modelos;
-    filtrarModelos();
-}
-
 function filtrarModelos() {
     const marcaId = document.getElementById('v-marca')?.value;
     const sel     = document.getElementById('v-modelo');
@@ -947,7 +962,11 @@ async function cargarPlanSidebar() {
     try {
         const sub = await apiFetch(`/usuarios/${State.usuario.id_usuario}/suscripcion`);
         if (!sub) {
-            el.innerHTML = '<span style="color:var(--text-3)">Sin plan activo — pago por uso</span>';
+            el.innerHTML = `<div style="color:var(--text-3);font-size:0.8rem">Sin plan activo</div>
+                <div class="link-g" onclick="abrirModalPlanes();closeMenu()"
+                     style="cursor:pointer;font-size:0.8rem;font-weight:600;margin-top:4px">
+                    Elegir un plan →
+                </div>`;
         } else {
             el.innerHTML = `
                 <div style="font-weight:600;color:var(--text);font-size:0.85rem">${sub.nombre_plan}</div>
@@ -1145,19 +1164,23 @@ async function contratarPlan(idPlan, nombrePlan) {
 /* 
    ARRANQUE
     */
-document.addEventListener('DOMContentLoaded', () => {
-    // Enter en login
+document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Cargar todos los componentes HTML primero
+    await loadComponents();
+
+    // 2. Enter en login
     document.addEventListener('keydown', e => {
         if (e.key === 'Enter' && !State.usuario) doLogin();
     });
-    // Cerrar modales al hacer click en el fondo
+
+    // 3. Cerrar modales al hacer click en el fondo
     document.querySelectorAll('.modal-bg').forEach(bg => {
         bg.addEventListener('click', e => { if (e.target === bg) closeModal(bg.id); });
     });
 
-    // Enganchar botón de registro
+    // 4. Enganchar botón de registro
     const regLink = document.querySelector('.register-prompt .link-g');
     if (regLink) regLink.addEventListener('click', e => { e.preventDefault(); mostrarRegistro(); });
 
-    console.log('%c⚡ Electrolineras — Frontend conectado a API', 'color:#1a7a3c;font-weight:bold');
-});
+    console.log('Electrolineras — Componentes cargados');
+});;

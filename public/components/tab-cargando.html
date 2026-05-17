@@ -1,0 +1,40 @@
+<div class="tab" id="tab-cargando">
+            <div class="charging-view">
+                <div class="cv-location">
+                    <div class="cv-loc-name"> Electrolineras Plaza Galerías</div>
+                    <div class="cv-loc-detail">Puerto 4 · CCS2 · 90 kW</div>
+                </div>
+                <div class="pr-wrap">
+                    <svg class="pr-svg" viewBox="0 0 200 200">
+                        <circle class="pr-track" cx="100" cy="100" r="86"/>
+                        <circle class="pr-arc" cx="100" cy="100" r="86" id="pr-arc"
+                                stroke-dasharray="540" stroke-dashoffset="540"/>
+                    </svg>
+                    <div class="pr-inner">
+                        <div class="pr-pct" id="pr-pct">0%</div>
+                        <div class="pr-sub">Cargado</div>
+                    </div>
+                </div>
+                <div class="cs-stats">
+                    <div class="cs-s">
+                        <div class="cs-val" id="cs-kwh">0.0</div>
+                        <div class="cs-lbl">kWh</div>
+                    </div>
+                    <div class="cs-div"></div>
+                    <div class="cs-s">
+                        <div class="cs-val" id="cs-time">0 min</div>
+                        <div class="cs-lbl">Tiempo</div>
+                    </div>
+                    <div class="cs-div"></div>
+                    <div class="cs-s">
+                        <div class="cs-val" id="cs-cost">$0</div>
+                        <div class="cs-lbl">Costo</div>
+                    </div>
+                </div>
+                <div class="card tariff-card">
+                    <div class="tar-row"><span>Tarifa activa</span><strong>$6.00 / kWh</strong></div>
+                    <div class="tar-row"><span>Método de pago</span><strong> •••• 4242</strong></div>
+                </div>
+                <button class="btn-danger w-full" onclick="detenerCarga()">Detener carga</button>
+            </div>
+        </div>

@@ -1,0 +1,67 @@
+<div class="tab active" id="tab-inicio">
+            <div class="greeting">
+                <div>
+                    <div class="gr-hi">Hola, <strong>Sofía</strong> </div>
+                    <div class="gr-sub">¿Listo para cargar hoy?</div>
+                </div>
+                <div class="net-badge"><span class="net-dot"></span> Red activa</div>
+            </div>
+
+            <!-- BOTÓN PRINCIPAL DE CARGA -->
+            <section class="charge-section">
+                <div class="charge-orbit">
+                    <div class="orbit-ring r1"></div>
+                    <div class="orbit-ring r2"></div>
+                    <button class="charge-btn" id="charge-btn" onclick="iniciarCarga()">
+                        <span class="cb-bolt">⚡</span>
+                        <span class="cb-text">Iniciar<br>Carga</span>
+                    </button>
+                </div>
+                <p class="charge-hint">Toca para encontrar una estación cercana</p>
+            </section>
+
+            <!-- Tarjeta vehículo -->
+            <section class="card veh-card">
+                <div class="card-toprow">
+                    <span class="card-lbl">Mi vehículo</span>
+                    <button class="link-g sm" onclick="goTab('cuenta')">Cambiar ›</button>
+                </div>
+                <div class="veh-row">
+                    <span class="veh-ico"></span>
+                    <div>
+                        <div class="veh-n">Tesla Model 3</div>
+                        <div class="veh-d">ABC-123-GDL · 2022</div>
+                    </div>
+                    <div class="bat-wrap">
+                        <div class="bat-body">
+                            <div class="bat-fill" style="width:68%"></div>
+                            <div class="bat-nub"></div>
+                        </div>
+                        <span class="bat-pct">68%</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Estaciones rápidas -->
+            <div class="sec-toprow">
+                <h2 class="sec-title">Estaciones cercanas</h2>
+                <button class="link-g sm" onclick="goTab('estaciones')">Ver todas ›</button>
+            </div>
+            <div class="strip" id="home-strip"></div>
+
+            <!-- Última carga -->
+            <div class="card last-card">
+                <span class="card-lbl" style="display:block;margin-bottom:10px">Última carga</span>
+                <div class="lc-row">
+                    <span class="lc-ico">kWh</span>
+                    <div>
+                        <div class="lc-n">Electrolineras Plaza Galerías</div>
+                        <div class="lc-d">15 Abr 2025 · 42 min</div>
+                    </div>
+                    <div style="text-align:right">
+                        <div class="lc-kwh">28.4 kWh</div>
+                        <div class="lc-cost">$142</div>
+                    </div>
+                </div>
+            </div>
+        </div>

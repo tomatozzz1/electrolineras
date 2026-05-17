@@ -1,0 +1,87 @@
+<!-- MODAL: Agregar vehículo -->
+<div class="modal-bg" id="modal-vehiculo">
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <h3 class="sheet-title">Agregar vehículo</h3>
+        <p class="sheet-sub">Registra tu auto eléctrico</p>
+        <div class="form-group">
+            <label class="form-label">Marca</label>
+            <div class="input-wrap" style="padding:0 12px">
+                <select id="mv-marca" aria-label="Marca del vehículo" style="flex:1;border:none;outline:none;padding:12px 0;background:transparent;font-size:0.9rem;color:var(--text)" onchange="filtrarModelosSidebar()">
+                    <option value="">Selecciona marca...</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Modelo</label>
+            <div class="input-wrap" style="padding:0 12px">
+                <select id="mv-modelo" aria-label="Modelo del vehículo" style="flex:1;border:none;outline:none;padding:12px 0;background:transparent;font-size:0.9rem;color:var(--text)">
+                    <option value="">Primero selecciona una marca</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Placa</label>
+            <div class="input-wrap">
+                <span class="input-icon" style="display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h2a2 2 0 0 1 2 2"/><path d="M6 3H4a2 2 0 0 0-2 2"/><circle cx="9" cy="13" r="2"/><path d="M15 12h2"/><path d="M15 16h2"/><path d="M11 16.5A4 4 0 0 0 5 17"/></svg></span>
+                <input type="text" id="mv-placa" class="form-input" placeholder="ABC-123-GDL" style="text-transform:uppercase">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Año</label>
+            <div class="input-wrap">
+                <span class="input-icon" style="display:flex;align-items:center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></span>
+                <input type="number" id="mv-anio" class="form-input" placeholder="2024" min="2000" max="2025">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Capacidad de batería (kWh) — opcional</label>
+            <div class="input-wrap">
+                <span class="input-icon" style="display:flex;align-items:center;font-size:0.75rem;font-weight:600;color:var(--text-3)">kWh</span>
+                <input type="number" id="mv-kwh" class="form-input" placeholder="75" step="0.1">
+            </div>
+        </div>
+        <button class="btn-primary w-full" id="mv-save-btn" onclick="guardarVehiculoModal()">Registrar vehículo</button>
+        <button class="btn-outline w-full" style="margin-top:8px" onclick="closeModal('modal-vehiculo')">Cancelar</button>
+    </div>
+</div>
+
+<!-- MODAL: Cambiar plan -->
+<div class="modal-bg" id="modal-planes">
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <h3 class="sheet-title">Planes disponibles</h3>
+        <p class="sheet-sub">Elige el plan que mejor se adapte a ti</p>
+        <div id="modal-planes-list"></div>
+        <button class="btn-outline w-full" style="margin-top:12px" onclick="closeModal('modal-planes')">Cancelar</button>
+    </div>
+</div>
+
+<!-- MODAL: Elegir estación -->
+<div class="modal-bg" id="modal-station">
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <h3 class="sheet-title">¿Dónde quieres cargar?</h3>
+        <p class="sheet-sub">Selecciona una estación disponible</p>
+        <div id="modal-est-list"></div>
+        <button class="btn-outline w-full" style="margin-top:12px" onclick="closeModal('modal-station')">Cancelar</button>
+    </div>
+</div>
+
+<!-- MODAL: Carga completada -->
+<div class="modal-bg" id="modal-done">
+    <div class="modal-sheet" style="text-align:center">
+        <div class="sheet-handle"></div>
+        <div class="done-check" style="font-size:2.5rem;color:var(--primary)">✓</div>
+        <h3 class="sheet-title">¡Carga completada!</h3>
+        <div class="done-rows">
+            <div class="done-row"><span>Energía cargada</span><strong id="d-kwh">—</strong></div>
+            <div class="done-row"><span>Tiempo total</span><strong id="d-time">—</strong></div>
+            <div class="done-row"><span>Costo total</span><strong id="d-cost">—</strong></div>
+        </div>
+        <button class="btn-primary w-full" onclick="finalizarSesion()">Ver historial</button>
+        <button class="btn-outline w-full" style="margin-top:8px" onclick="finalizarSesion()">Volver al inicio</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
