@@ -50,6 +50,25 @@ async function renderPerfil() {
     await renderVehiculosCuenta();
 }
 
+async function eliminarVehiculo(idVehiculo, placa) {
+    showConfirm({
+        title:   '¿Eliminar vehículo?',
+        msg:     `Se eliminará el vehículo con placa ${placa}. Esta acción no se puede deshacer.`,
+        btnText: 'Sí, eliminar',
+        onConfirm: async () => {
+            try {
+                await apiFetch(`/vehiculos/${idVehiculo}?id_usuario=${State.usuario.id_usuario}`, {
+                    method: 'DELETE',
+                });
+                showToast('Vehículo eliminado');
+                resetSidebarCache();
+                await renderVehiculoCard();
+                await renderVehiculosCuenta();
+            } catch(err) { showToast(err.message); }
+        }
+    });
+}
+
 async function renderMetodosPago() {
     const accBody = document.getElementById('a-pagos');
     if (!accBody || !State.usuario) return;
@@ -154,11 +173,17 @@ async function renderVehiculosCuenta() {
                         <circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>
                     </svg>
                 </span>
-                <div>
+                <div style="flex:1">
                     <div class="vi-n">${v.nombre_marca} ${v.nombre_modelo}</div>
                     <div class="vi-d">${v.anio} · ${v.placa} · ${v.capacidad_bateria_kwh || '?'} kWh</div>
                 </div>
                 ${i === 0 ? '<span class="tag-green">Principal</span>' : ''}
+                <button onclick="eliminarVehiculo(${v.id_vehiculo}, '${v.placa}')"
+                    style="margin-left:8px;padding:5px 10px;border-radius:8px;font-size:0.75rem;
+                           font-weight:600;border:1px solid var(--danger,#dc3545);
+                           color:var(--danger,#dc3545);background:transparent;cursor:pointer">
+                    Eliminar
+                </button>
             </div>`).join('');
     } catch(_) {}
 }

@@ -270,7 +270,7 @@
 .pr-arc{
     fill:none;stroke:var(--primary);stroke-width:10;
     stroke-linecap:round;
-    transition:stroke-dashoffset 1s ease;
+    transition:none;
 }
 .pr-inner{
     position:absolute;inset:0;

@@ -28,3 +28,30 @@ function emptyState(icon, msg, sub = '') {
         ${sub ? `<p style="font-size:0.82rem">${sub}</p>` : ''}
     </div>`;
 }
+
+// Reemplaza confirm() con modal personalizado
+// Uso: showConfirm({ title, msg, icon, btnText, onConfirm })
+function showConfirm({ title = 'Confirmar', msg = '', btnText = 'Eliminar', onConfirm }) {
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-msg').textContent   = msg;
+    document.getElementById('confirm-ok').textContent    = btnText;
+
+    openModal('modal-confirm');
+
+    const okBtn     = document.getElementById('confirm-ok');
+    const cancelBtn = document.getElementById('confirm-cancel');
+
+    // clonar para remover listeners anteriores
+    const newOk     = okBtn.cloneNode(true);
+    const newCancel = cancelBtn.cloneNode(true);
+    okBtn.replaceWith(newOk);
+    cancelBtn.replaceWith(newCancel);
+
+    document.getElementById('confirm-ok').addEventListener('click', () => {
+        closeModal('modal-confirm');
+        onConfirm();
+    });
+    document.getElementById('confirm-cancel').addEventListener('click', () => {
+        closeModal('modal-confirm');
+    });
+}

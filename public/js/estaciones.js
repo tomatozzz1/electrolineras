@@ -78,3 +78,49 @@ function stationCard(e) {
 }
 
 // iniciar carga
+
+// reportar falla desde la vista de usuario
+async function abrirReporteFalla() {
+    openModal('modal-reportar-falla');
+    document.getElementById('rf-descripcion').value = '';
+    const sel = document.getElementById('rf-cargador');
+    sel.innerHTML = '<option value="">Cargando...</option>';
+    try {
+        const ests = await apiFetch('/estaciones');
+        const opciones = ests.flatMap(e =>
+            Array.from({length: parseInt(e.total_cargadores)}, (_, i) => ({
+                id: null, label: `${e.nombre_estacion} — Cargador ${i+1}`,
+                id_est: e.id_estacion
+            }))
+        );
+        // mejor: cargar con puertos reales
+        const cargadores = await Promise.all(
+            ests.map(e => apiFetch(`/estaciones/${e.id_estacion}`)
+                .then(d => d.cargadores?.map(c => ({
+                    id_cargador: c.id_cargador,
+                    label: `${e.nombre_estacion} — ${c.modelo} (${c.potencia_kw} kW)`
+                })) || [])
+            )
+        );
+        const todos = cargadores.flat();
+        sel.innerHTML = '<option value="">Selecciona el cargador con falla...</option>' +
+            todos.map(c => `<option value="${c.id_cargador}">${c.label}</option>`).join('');
+    } catch(err) {
+        sel.innerHTML = '<option value="">Error al cargar</option>';
+    }
+}
+
+async function enviarReporteFalla() {
+    const id_cargador = document.getElementById('rf-cargador')?.value;
+    const descripcion = document.getElementById('rf-descripcion')?.value.trim();
+    if (!id_cargador) { showToast('Selecciona el cargador con falla'); return; }
+    if (!descripcion) { showToast('Describe el problema'); return; }
+    try {
+        await apiFetch(`/usuarios/${State.usuario.id_usuario}/reportar-falla`, {
+            method: 'POST',
+            body: JSON.stringify({ id_cargador: parseInt(id_cargador), descripcion_problema: descripcion }),
+        });
+        showToast('Reporte enviado — lo revisaremos pronto');
+        closeModal('modal-reportar-falla');
+    } catch(err) { showToast(err.message); }
+}

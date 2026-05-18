@@ -113,8 +113,32 @@ async function adminLoadCargadores() {
                         ${estados.map(s => `<option value="${s}" ${s===c.estado?'selected':''}>${s}</option>`).join('')}
                     </select>
                 </td>
+                <td>
+                    <button onclick="adminEliminarCargador(${c.id_cargador}, '${c.modelo}')"
+                        style="padding:4px 10px;border-radius:6px;font-size:0.75rem;font-weight:600;
+                               border:1px solid var(--danger,#dc3545);color:var(--danger,#dc3545);
+                               background:transparent;cursor:pointer">
+                        Eliminar
+                    </button>
+                </td>
             </tr>`).join('');
     } catch(err) { showToast(err.message); }
+}
+
+async function adminEliminarCargador(id, modelo) {
+    showConfirm({
+        title:   '¿Eliminar cargador?',
+        msg:     `Se eliminará el cargador "${modelo}" y todos sus puertos. Esta acción no se puede deshacer.`,
+        btnText: 'Sí, eliminar',
+        onConfirm: async () => {
+            try {
+                await apiFetch(`/admin/cargadores/${id}`, { method: 'DELETE' });
+                showToast('Cargador eliminado');
+                await adminLoadCargadores();
+                await adminLoadDashboard();
+            } catch(err) { showToast(err.message); }
+        }
+    });
 }
 
 async function adminUpdateCargador(id, estado) {
@@ -283,5 +307,99 @@ async function guardarTarifa() {
         showToast('Tarifa creada correctamente');
         closeModal('modal-tarifa');
         adminLoadTarifas();
+    } catch(err) { showToast(err.message); }
+}
+
+
+// nueva estacion
+function abrirModalNuevaEstacion() {
+    ['ne-nombre','ne-calle','ne-numero','ne-cp','ne-ciudad','ne-estado'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    document.getElementById('ne-ciudad').value = 'Zapopan';
+    document.getElementById('ne-estado').value = 'Jalisco';
+    openModal('modal-nueva-estacion');
+}
+
+async function guardarNuevaEstacion() {
+    const nombre    = document.getElementById('ne-nombre').value.trim();
+    const calle     = document.getElementById('ne-calle').value.trim();
+    const numero    = document.getElementById('ne-numero').value.trim();
+    const cp        = document.getElementById('ne-cp').value.trim();
+    const ciudad    = document.getElementById('ne-ciudad').value.trim();
+    const estado_geo= document.getElementById('ne-estado').value.trim();
+    const status    = document.getElementById('ne-status').value;
+
+    if (!nombre || !calle || !ciudad || !estado_geo || !cp) {
+        showToast('Completa todos los campos obligatorios'); return;
+    }
+    try {
+        await apiFetch('/admin/estaciones', {
+            method: 'POST',
+            body: JSON.stringify({ nombre_estacion: nombre, calle, numero, ciudad,
+                                   estado_geo, codigo_postal: cp, estado: status }),
+        });
+        showToast('Estación creada correctamente');
+        closeModal('modal-nueva-estacion');
+        await adminLoadEstaciones();
+        await adminLoadDashboard();
+    } catch(err) { showToast(err.message); }
+}
+
+// nuevo cargador
+async function abrirModalNuevoCargador() {
+    openModal('modal-nuevo-cargador');
+    ['nc-modelo','nc-potencia'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    try {
+        const [ests, fabricantes, conectores] = await Promise.all([
+            apiFetch('/admin/estaciones'),
+            apiFetch('/admin/fabricantes'),
+            apiFetch('/conectores'),
+        ]);
+
+        document.getElementById('nc-estacion').innerHTML =
+            '<option value="">Selecciona estación...</option>' +
+            ests.map(e => `<option value="${e.id_estacion}">${e.nombre_estacion} — ${e.ciudad}</option>`).join('');
+
+        document.getElementById('nc-fabricante').innerHTML =
+            '<option value="">Selecciona fabricante...</option>' +
+            fabricantes.map(f => `<option value="${f.id_fabricante_cargador}">${f.nombre_fabricante} (${f.pais_fabricante})</option>`).join('');
+
+        document.getElementById('nc-conector').innerHTML =
+            '<option value="">Sin puerto inicial</option>' +
+            conectores.map(c => `<option value="${c.id_tipo_conector}">${c.nombre}</option>`).join('');
+    } catch(err) { showToast(err.message); }
+}
+
+async function guardarNuevoCargador() {
+    const id_estacion           = document.getElementById('nc-estacion').value;
+    const id_fabricante_cargador= document.getElementById('nc-fabricante').value;
+    const modelo                = document.getElementById('nc-modelo').value.trim();
+    const potencia_kw           = parseFloat(document.getElementById('nc-potencia').value);
+    const estado                = document.getElementById('nc-estado').value;
+    const tipo_conector         = document.getElementById('nc-conector').value;
+
+    if (!id_estacion || !id_fabricante_cargador || !modelo || !potencia_kw) {
+        showToast('Completa todos los campos obligatorios'); return;
+    }
+    try {
+        await apiFetch('/admin/cargadores', {
+            method: 'POST',
+            body: JSON.stringify({
+                id_estacion: parseInt(id_estacion),
+                id_fabricante_cargador: parseInt(id_fabricante_cargador),
+                modelo, potencia_kw, estado,
+                tipo_conector: tipo_conector ? parseInt(tipo_conector) : null,
+                potencia_puerto: potencia_kw,
+            }),
+        });
+        showToast('Cargador creado correctamente');
+        closeModal('modal-nuevo-cargador');
+        await adminLoadCargadores();
+        await adminLoadDashboard();
     } catch(err) { showToast(err.message); }
 }

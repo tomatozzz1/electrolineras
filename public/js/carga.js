@@ -141,44 +141,58 @@ async function iniciarCounterCarga(sesion, idEst) {
     const targetPct = 85;
     const totalKwh  = cap * (targetPct - startPct) / 100;
 
-    // estado inicial
-    document.getElementById('pr-arc').style.strokeDashoffset = '540';
-    document.getElementById('pr-pct').textContent = `${startPct}%`;
+    // offset del ring según % de batería (30%→378, 85%→81, 100%→0)
+    const pctToOffset = (pct) => 540 * (1 - pct / 100);
+    const arc = document.getElementById('pr-arc');
+    const pctEl = document.getElementById('pr-pct');
+
+    // desactivar transición CSS para el estado inicial
+    arc.style.transition = 'none';
+    arc.style.strokeDashoffset = pctToOffset(startPct);
+    pctEl.textContent = `${startPct}%`;
     document.getElementById('cs-kwh').textContent  = '0.0';
     document.getElementById('cs-time').textContent = '0s';
     document.getElementById('cs-cost').textContent = '$0';
 
+    State.chargeKwh = 0;
     goTab('cargando');
 
-    // simulación
-    const kwPerSec = 1.0;
-    let elapsedSec = 0;
+    // reactivar transición después de que el DOM procese el estado inicial
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            arc.style.transition = 'stroke-dashoffset 0.3s linear';
+        });
+    });
+
+    let elapsedMs = 0;
+    const kwPerTick = totalKwh / 90;
 
     State.chargeInterval = setInterval(() => {
-        elapsedSec++;
-        State.chargeKwh += kwPerSec;
+        elapsedMs += 500;
+        State.chargeKwh = Math.min(State.chargeKwh + kwPerTick, totalKwh);
 
-        const progress = Math.min(State.chargeKwh / totalKwh, 1);
-        const battPct  = Math.round(startPct + progress * (targetPct - startPct));
+        const progress = State.chargeKwh / totalKwh;
+        const battPct  = startPct + progress * (targetPct - startPct);
         const cost     = State.chargeKwh * State.tarifaKwh;
-        const offset   = 540 * (1 - progress);
+        const elapsedSec = Math.floor(elapsedMs / 1000);
 
-        document.getElementById('pr-arc').style.strokeDashoffset = offset;
-        document.getElementById('pr-pct').textContent = `${battPct}%`;
+        arc.style.strokeDashoffset = pctToOffset(battPct);
+        pctEl.textContent = `${Math.round(battPct)}%`;
         document.getElementById('cs-kwh').textContent  = State.chargeKwh.toFixed(2);
         document.getElementById('cs-time').textContent = elapsedSec < 60
             ? `${elapsedSec}s`
             : `${Math.floor(elapsedSec/60)}m ${elapsedSec % 60}s`;
         document.getElementById('cs-cost').textContent = fmxn(cost);
 
-        // auto-stop
         if (progress >= 1) {
             clearInterval(State.chargeInterval);
             State.chargeInterval = null;
-            mostrarResumen();
+            arc.style.strokeDashoffset = pctToOffset(targetPct);
+            pctEl.textContent = `${targetPct}%`;
+            setTimeout(() => mostrarResumen(), 800);
         }
 
-    }, 1000);
+    }, 500);
 }
 
 async function detenerCarga() {

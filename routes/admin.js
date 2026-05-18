@@ -151,6 +151,81 @@ router.post('/tarifas', async (req, res) => {
     } catch(err) { res.status(500).json({ error: err.message }); }
 });
 
+
+// DELETE /api/admin/cargadores/:id
+router.delete('/cargadores/:id', async (req, res) => {
+    try {
+        const sesionActiva = await query(
+            `SELECT COUNT(*) FROM sesiones_carga sc
+             JOIN puertos_carga p ON p.id_puerto = sc.id_puerto
+             WHERE p.id_cargador = $1 AND sc.hora_fin IS NULL`,
+            [req.params.id]
+        );
+        if (parseInt(sesionActiva.rows[0].count) > 0)
+            return res.status(409).json({ error: 'El cargador tiene sesiones activas' });
+
+        await query('DELETE FROM cargadores WHERE id_cargador = $1', [req.params.id]);
+        res.json({ ok: true });
+    } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/admin/fabricantes
+router.get('/fabricantes', async (_req, res) => {
+    try {
+        const r = await query('SELECT * FROM fabricantes_cargador ORDER BY nombre_fabricante');
+        res.json(r.rows);
+    } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/admin/cargadores
+router.post('/cargadores', async (req, res) => {
+    const { id_estacion, id_fabricante_cargador, modelo, potencia_kw, estado } = req.body;
+    if (!id_estacion || !id_fabricante_cargador || !modelo || !potencia_kw)
+        return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    try {
+        const r = await query(
+            `INSERT INTO cargadores (id_estacion, id_fabricante_cargador, modelo, potencia_kw, estado)
+             VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+            [id_estacion, id_fabricante_cargador, modelo, potencia_kw, estado || 'activo']
+        );
+        res.status(201).json({ ok: true, cargador: r.rows[0] });
+    } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
+// POST /api/admin/estaciones
+router.post('/estaciones', async (req, res) => {
+    const { nombre_estacion, calle, numero, ciudad, estado_geo, codigo_postal, estado } = req.body;
+    if (!nombre_estacion || !calle || !ciudad || !estado_geo || !codigo_postal)
+        return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    const client = await require('./db').pool.connect();
+    try {
+        await client.query('BEGIN');
+        const dir = await client.query(
+            `INSERT INTO direcciones (calle, numero, ciudad, estado, codigo_postal)
+             VALUES ($1,$2,$3,$4,$5) RETURNING id_direccion`,
+            [calle, numero || null, ciudad, estado_geo, codigo_postal]
+        );
+        const est = await client.query(
+            `INSERT INTO estaciones (nombre_estacion, id_direccion, estado)
+             VALUES ($1,$2,$3) RETURNING *`,
+            [nombre_estacion, dir.rows[0].id_direccion, estado || 'activa']
+        );
+        await client.query('COMMIT');
+        res.status(201).json({ ok: true, estacion: est.rows[0] });
+    } catch(err) {
+        await client.query('ROLLBACK');
+        res.status(500).json({ error: err.message });
+    } finally { client.release(); }
+});
+
+// DELETE /api/admin/cargadores/:id
+router.delete('/cargadores/:id', async (req, res) => {
+    try {
+        await query('DELETE FROM cargadores WHERE id_cargador=$1', [req.params.id]);
+        res.json({ ok: true });
+    } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
 // GET /api/admin/tecnicos
 router.get('/tecnicos', async (_req, res) => {
     try {
@@ -174,4 +249,90 @@ router.put('/ordenes/:id/asignar', async (req, res) => {
 });
 
 // GET /api/admin/ordenes ahora incluye tecnico NULL
+// POST /api/admin/estaciones
+router.post('/estaciones', async (req, res) => {
+    const { nombre_estacion, calle, numero, ciudad, estado_geo, codigo_postal, estado } = req.body;
+    if (!nombre_estacion || !calle || !ciudad || !estado_geo || !codigo_postal)
+        return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    const client = await require('./db').pool.connect();
+    try {
+        await client.query('BEGIN');
+        const dir = await client.query(
+            `INSERT INTO direcciones (calle, numero, ciudad, estado, codigo_postal)
+             VALUES ($1,$2,$3,$4,$5) RETURNING id_direccion`,
+            [calle, numero || null, ciudad, estado_geo, codigo_postal]
+        );
+        const est = await client.query(
+            `INSERT INTO estaciones (nombre_estacion, id_direccion, estado)
+             VALUES ($1,$2,$3) RETURNING *`,
+            [nombre_estacion, dir.rows[0].id_direccion, estado || 'activa']
+        );
+        await client.query('COMMIT');
+        res.status(201).json({ ok: true, estacion: est.rows[0] });
+    } catch(err) {
+        await client.query('ROLLBACK');
+        res.status(500).json({ error: err.message });
+    } finally { client.release(); }
+});
+
+// POST /api/admin/cargadores
+router.post('/cargadores', async (req, res) => {
+    const { id_estacion, id_fabricante_cargador, modelo, potencia_kw, estado,
+            tipo_conector, potencia_puerto } = req.body;
+    if (!id_estacion || !id_fabricante_cargador || !modelo || !potencia_kw)
+        return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    const client = await require('./db').pool.connect();
+    try {
+        await client.query('BEGIN');
+        const c = await client.query(
+            `INSERT INTO cargadores (id_estacion, id_fabricante_cargador, modelo, potencia_kw, estado)
+             VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+            [id_estacion, id_fabricante_cargador, modelo, potencia_kw, estado || 'activo']
+        );
+        // crear puerto automáticamente si se especificó conector
+        if (tipo_conector) {
+            const tc = await client.query(
+                'SELECT id_tipo_conector FROM tipos_conector WHERE id_tipo_conector = $1', [tipo_conector]
+            );
+            if (tc.rows.length > 0) {
+                await client.query(
+                    `INSERT INTO puertos_carga (id_cargador, id_tipo_conector, potencia_max_kw, estado)
+                     VALUES ($1,$2,$3,'libre')`,
+                    [c.rows[0].id_cargador, tipo_conector, potencia_puerto || potencia_kw]
+                );
+            }
+        }
+        await client.query('COMMIT');
+        res.status(201).json({ ok: true, cargador: c.rows[0] });
+    } catch(err) {
+        await client.query('ROLLBACK');
+        res.status(500).json({ error: err.message });
+    } finally { client.release(); }
+});
+
+// DELETE /api/admin/cargadores/:id
+router.delete('/cargadores/:id', async (req, res) => {
+    try {
+        const sesionActiva = await query(
+            `SELECT COUNT(*) FROM sesiones_carga sc
+             JOIN puertos_carga p ON p.id_puerto = sc.id_puerto
+             WHERE p.id_cargador = $1 AND sc.hora_fin IS NULL`,
+            [req.params.id]
+        );
+        if (parseInt(sesionActiva.rows[0].count) > 0)
+            return res.status(409).json({ error: 'El cargador tiene sesiones activas' });
+
+        await query('DELETE FROM cargadores WHERE id_cargador = $1', [req.params.id]);
+        res.json({ ok: true });
+    } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
+// GET /api/admin/fabricantes
+router.get('/fabricantes', async (_req, res) => {
+    try {
+        const r = await query('SELECT * FROM fabricantes_cargador ORDER BY nombre_fabricante');
+        res.json(r.rows);
+    } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
 module.exports = router;

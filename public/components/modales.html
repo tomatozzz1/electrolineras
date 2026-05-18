@@ -85,3 +85,59 @@
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Modal: Reportar falla (usuario) -->
+<div class="modal-bg" id="modal-reportar-falla">
+    <div class="modal-sheet">
+        <div class="sheet-handle"></div>
+        <h3 class="sheet-title">Reportar falla</h3>
+        <p class="sheet-sub">Ayúdanos a mantener los cargadores en buen estado</p>
+        <div class="form-group">
+            <label class="form-label">Estación y cargador</label>
+            <div class="input-wrap" style="padding:0 12px">
+                <select id="rf-cargador" aria-label="Cargador con falla"
+                    style="flex:1;border:none;outline:none;padding:12px 0;background:transparent;font-size:0.88rem;color:var(--text)">
+                    <option value="">Cargando cargadores...</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group" style="margin-top:12px">
+            <label class="form-label">¿Qué problema encontraste?</label>
+            <div class="input-wrap" style="align-items:flex-start;padding:4px 12px">
+                <textarea id="rf-descripcion"
+                    style="flex:1;border:none;outline:none;padding:8px 0;
+                           background:transparent;font-size:0.88rem;color:var(--text);
+                           resize:none;min-height:90px;font-family:inherit;line-height:1.5"
+                    placeholder="Ej: La pantalla no responde, el cable no conecta..."></textarea>
+            </div>
+        </div>
+        <button class="btn-primary w-full" style="margin-top:4px" onclick="enviarReporteFalla()">
+            Enviar reporte
+        </button>
+        <button class="btn-outline w-full" style="margin-top:8px" onclick="closeModal('modal-reportar-falla')">
+            Cancelar
+        </button>
+    </div>
+</div>
+
+<!-- Modal: Confirmación personalizada -->
+<div class="modal-bg" id="modal-confirm">
+    <div class="modal-sheet" style="max-width:360px;margin:auto;border-radius:20px;text-align:center;padding:28px 24px">
+        <h3 id="confirm-title" style="font-family:var(--font-d);font-size:1.1rem;font-weight:800;color:var(--text);margin-bottom:8px"></h3>
+        <p id="confirm-msg" style="font-size:0.85rem;color:var(--text-2);line-height:1.5;margin-bottom:24px"></p>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <button id="confirm-cancel"
+                style="padding:12px;border-radius:var(--r);border:1.5px solid var(--border);
+                       background:var(--white);color:var(--text-2);font-size:0.9rem;
+                       font-weight:600;cursor:pointer">
+                Cancelar
+            </button>
+            <button id="confirm-ok"
+                style="padding:12px;border-radius:var(--r);border:none;
+                       background:var(--danger,#dc3545);color:#fff;font-size:0.9rem;
+                       font-weight:700;cursor:pointer">
+                Eliminar
+            </button>
+        </div>
+    </div>
+</div>

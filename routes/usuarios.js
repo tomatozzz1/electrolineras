@@ -109,4 +109,19 @@ router.get('/:id/pagos', async (req, res) => {
     } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+// POST /api/usuarios/:id/reportar-falla
+router.post('/:id/reportar-falla', async (req, res) => {
+    const { id_cargador, descripcion_problema } = req.body;
+    if (!id_cargador || !descripcion_problema)
+        return res.status(400).json({ error: 'Selecciona un cargador y describe el problema' });
+    try {
+        const r = await query(
+            `INSERT INTO ordenes_mantenimiento (id_cargador, id_tecnico, descripcion_problema, estado)
+             VALUES ($1, NULL, $2, 'pendiente') RETURNING *`,
+            [id_cargador, `[Usuario #${req.params.id}] ${descripcion_problema}`]
+        );
+        res.status(201).json({ ok: true, orden: r.rows[0] });
+    } catch(err) { res.status(500).json({ error: err.message }); }
+});
+
 module.exports = router;
