@@ -128,11 +128,12 @@
 }
 .input-icon{padding:0 12px;font-size:0.95rem;color:var(--text-3)}
 .form-input{
-    flex:1;padding:12px 0;
+    flex:1;padding:12px 14px;
     border:none;outline:none;
     font-size:0.95rem;color:var(--text);
     background:transparent;
 }
+.input-icon + .form-input{padding-left:4px}
 .form-input::placeholder{color:var(--text-3)}
 .pass-toggle{
     padding:0 12px;color:var(--text-3);
